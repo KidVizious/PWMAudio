@@ -1,0 +1,308 @@
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"crc.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.MX_CRC_Init,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.global	MX_CRC_Init
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	MX_CRC_Init:
+  25              	.LFB66:
+  26              		.file 1 "Src/crc.c"
+   1:Src/crc.c     **** /**
+   2:Src/crc.c     ****   ******************************************************************************
+   3:Src/crc.c     ****   * File Name          : CRC.c
+   4:Src/crc.c     ****   * Description        : This file provides code for the configuration
+   5:Src/crc.c     ****   *                      of the CRC instances.
+   6:Src/crc.c     ****   ******************************************************************************
+   7:Src/crc.c     ****   ** This notice applies to any and all portions of this file
+   8:Src/crc.c     ****   * that are not between comment pairs USER CODE BEGIN and
+   9:Src/crc.c     ****   * USER CODE END. Other portions of this file, whether 
+  10:Src/crc.c     ****   * inserted by the user or by software development tools
+  11:Src/crc.c     ****   * are owned by their respective copyright owners.
+  12:Src/crc.c     ****   *
+  13:Src/crc.c     ****   * COPYRIGHT(c) 2018 STMicroelectronics
+  14:Src/crc.c     ****   *
+  15:Src/crc.c     ****   * Redistribution and use in source and binary forms, with or without modification,
+  16:Src/crc.c     ****   * are permitted provided that the following conditions are met:
+  17:Src/crc.c     ****   *   1. Redistributions of source code must retain the above copyright notice,
+  18:Src/crc.c     ****   *      this list of conditions and the following disclaimer.
+  19:Src/crc.c     ****   *   2. Redistributions in binary form must reproduce the above copyright notice,
+  20:Src/crc.c     ****   *      this list of conditions and the following disclaimer in the documentation
+  21:Src/crc.c     ****   *      and/or other materials provided with the distribution.
+  22:Src/crc.c     ****   *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  23:Src/crc.c     ****   *      may be used to endorse or promote products derived from this software
+  24:Src/crc.c     ****   *      without specific prior written permission.
+  25:Src/crc.c     ****   *
+  26:Src/crc.c     ****   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  27:Src/crc.c     ****   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  28:Src/crc.c     ****   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  29:Src/crc.c     ****   * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  30:Src/crc.c     ****   * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  31:Src/crc.c     ****   * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  32:Src/crc.c     ****   * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s 			page 2
+
+
+  33:Src/crc.c     ****   * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  34:Src/crc.c     ****   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  35:Src/crc.c     ****   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  36:Src/crc.c     ****   *
+  37:Src/crc.c     ****   ******************************************************************************
+  38:Src/crc.c     ****   */
+  39:Src/crc.c     **** 
+  40:Src/crc.c     **** /* Includes ------------------------------------------------------------------*/
+  41:Src/crc.c     **** #include "crc.h"
+  42:Src/crc.c     **** 
+  43:Src/crc.c     **** /* USER CODE BEGIN 0 */
+  44:Src/crc.c     **** 
+  45:Src/crc.c     **** /* USER CODE END 0 */
+  46:Src/crc.c     **** 
+  47:Src/crc.c     **** CRC_HandleTypeDef hcrc;
+  48:Src/crc.c     **** 
+  49:Src/crc.c     **** /* CRC init function */
+  50:Src/crc.c     **** void MX_CRC_Init(void)
+  51:Src/crc.c     **** {
+  27              		.loc 1 51 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+  52:Src/crc.c     **** 
+  53:Src/crc.c     ****   hcrc.Instance = CRC;
+  36              		.loc 1 53 0
+  37 0002 074B     		ldr	r3, .L6
+  38 0004 074A     		ldr	r2, .L6+4
+  54:Src/crc.c     ****   if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  39              		.loc 1 54 0
+  40 0006 1846     		mov	r0, r3
+  53:Src/crc.c     ****   if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  41              		.loc 1 53 0
+  42 0008 1A60     		str	r2, [r3]
+  43              		.loc 1 54 0
+  44 000a FFF7FEFF 		bl	HAL_CRC_Init
+  45              	.LVL0:
+  46 000e 00B9     		cbnz	r0, .L5
+  55:Src/crc.c     ****   {
+  56:Src/crc.c     ****     _Error_Handler(__FILE__, __LINE__);
+  57:Src/crc.c     ****   }
+  58:Src/crc.c     **** 
+  59:Src/crc.c     **** }
+  47              		.loc 1 59 0
+  48 0010 08BD     		pop	{r3, pc}
+  49              	.L5:
+  56:Src/crc.c     ****   }
+  50              		.loc 1 56 0
+  51 0012 3821     		movs	r1, #56
+  52              		.loc 1 59 0
+  53 0014 BDE80840 		pop	{r3, lr}
+  54              	.LCFI1:
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s 			page 3
+
+
+  55              		.cfi_restore 14
+  56              		.cfi_restore 3
+  57              		.cfi_def_cfa_offset 0
+  56:Src/crc.c     ****   }
+  58              		.loc 1 56 0
+  59 0018 0348     		ldr	r0, .L6+8
+  60 001a FFF7FEBF 		b	_Error_Handler
+  61              	.LVL1:
+  62              	.L7:
+  63 001e 00BF     		.align	2
+  64              	.L6:
+  65 0020 00000000 		.word	hcrc
+  66 0024 00300240 		.word	1073885184
+  67 0028 00000000 		.word	.LC0
+  68              		.cfi_endproc
+  69              	.LFE66:
+  71              		.section	.text.HAL_CRC_MspInit,"ax",%progbits
+  72              		.align	1
+  73              		.p2align 2,,3
+  74              		.global	HAL_CRC_MspInit
+  75              		.syntax unified
+  76              		.thumb
+  77              		.thumb_func
+  78              		.fpu softvfp
+  80              	HAL_CRC_MspInit:
+  81              	.LFB67:
+  60:Src/crc.c     **** 
+  61:Src/crc.c     **** void HAL_CRC_MspInit(CRC_HandleTypeDef* crcHandle)
+  62:Src/crc.c     **** {
+  82              		.loc 1 62 0
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 8
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              		@ link register save eliminated.
+  87              	.LVL2:
+  63:Src/crc.c     **** 
+  64:Src/crc.c     ****   if(crcHandle->Instance==CRC)
+  88              		.loc 1 64 0
+  89 0000 0268     		ldr	r2, [r0]
+  90 0002 094B     		ldr	r3, .L15
+  91 0004 9A42     		cmp	r2, r3
+  92 0006 00D0     		beq	.L14
+  93 0008 7047     		bx	lr
+  94              	.L14:
+  95              	.LBB2:
+  65:Src/crc.c     ****   {
+  66:Src/crc.c     ****   /* USER CODE BEGIN CRC_MspInit 0 */
+  67:Src/crc.c     **** 
+  68:Src/crc.c     ****   /* USER CODE END CRC_MspInit 0 */
+  69:Src/crc.c     ****     /* CRC clock enable */
+  70:Src/crc.c     ****     __HAL_RCC_CRC_CLK_ENABLE();
+  96              		.loc 1 70 0
+  97 000a A3F50053 		sub	r3, r3, #8192
+  98 000e 5A69     		ldr	r2, [r3, #20]
+  99              	.LBE2:
+  62:Src/crc.c     **** 
+ 100              		.loc 1 62 0
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s 			page 4
+
+
+ 101 0010 82B0     		sub	sp, sp, #8
+ 102              	.LCFI2:
+ 103              		.cfi_def_cfa_offset 8
+ 104              	.LBB3:
+ 105              		.loc 1 70 0
+ 106 0012 42F04002 		orr	r2, r2, #64
+ 107 0016 5A61     		str	r2, [r3, #20]
+ 108 0018 5B69     		ldr	r3, [r3, #20]
+ 109 001a 03F04003 		and	r3, r3, #64
+ 110 001e 0193     		str	r3, [sp, #4]
+ 111 0020 019B     		ldr	r3, [sp, #4]
+ 112              	.LBE3:
+  71:Src/crc.c     ****   /* USER CODE BEGIN CRC_MspInit 1 */
+  72:Src/crc.c     **** 
+  73:Src/crc.c     ****   /* USER CODE END CRC_MspInit 1 */
+  74:Src/crc.c     ****   }
+  75:Src/crc.c     **** }
+ 113              		.loc 1 75 0
+ 114 0022 02B0     		add	sp, sp, #8
+ 115              	.LCFI3:
+ 116              		.cfi_def_cfa_offset 0
+ 117              		@ sp needed
+ 118 0024 7047     		bx	lr
+ 119              	.L16:
+ 120 0026 00BF     		.align	2
+ 121              	.L15:
+ 122 0028 00300240 		.word	1073885184
+ 123              		.cfi_endproc
+ 124              	.LFE67:
+ 126              		.section	.text.HAL_CRC_MspDeInit,"ax",%progbits
+ 127              		.align	1
+ 128              		.p2align 2,,3
+ 129              		.global	HAL_CRC_MspDeInit
+ 130              		.syntax unified
+ 131              		.thumb
+ 132              		.thumb_func
+ 133              		.fpu softvfp
+ 135              	HAL_CRC_MspDeInit:
+ 136              	.LFB68:
+  76:Src/crc.c     **** 
+  77:Src/crc.c     **** void HAL_CRC_MspDeInit(CRC_HandleTypeDef* crcHandle)
+  78:Src/crc.c     **** {
+ 137              		.loc 1 78 0
+ 138              		.cfi_startproc
+ 139              		@ args = 0, pretend = 0, frame = 0
+ 140              		@ frame_needed = 0, uses_anonymous_args = 0
+ 141              		@ link register save eliminated.
+ 142              	.LVL3:
+  79:Src/crc.c     **** 
+  80:Src/crc.c     ****   if(crcHandle->Instance==CRC)
+ 143              		.loc 1 80 0
+ 144 0000 0268     		ldr	r2, [r0]
+ 145 0002 044B     		ldr	r3, .L19
+ 146 0004 9A42     		cmp	r2, r3
+ 147 0006 04D1     		bne	.L17
+  81:Src/crc.c     ****   {
+  82:Src/crc.c     ****   /* USER CODE BEGIN CRC_MspDeInit 0 */
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s 			page 5
+
+
+  83:Src/crc.c     **** 
+  84:Src/crc.c     ****   /* USER CODE END CRC_MspDeInit 0 */
+  85:Src/crc.c     ****     /* Peripheral clock disable */
+  86:Src/crc.c     ****     __HAL_RCC_CRC_CLK_DISABLE();
+ 148              		.loc 1 86 0
+ 149 0008 034A     		ldr	r2, .L19+4
+ 150 000a 5369     		ldr	r3, [r2, #20]
+ 151 000c 23F04003 		bic	r3, r3, #64
+ 152 0010 5361     		str	r3, [r2, #20]
+ 153              	.L17:
+  87:Src/crc.c     ****   /* USER CODE BEGIN CRC_MspDeInit 1 */
+  88:Src/crc.c     **** 
+  89:Src/crc.c     ****   /* USER CODE END CRC_MspDeInit 1 */
+  90:Src/crc.c     ****   }
+  91:Src/crc.c     **** } 
+ 154              		.loc 1 91 0
+ 155 0012 7047     		bx	lr
+ 156              	.L20:
+ 157              		.align	2
+ 158              	.L19:
+ 159 0014 00300240 		.word	1073885184
+ 160 0018 00100240 		.word	1073876992
+ 161              		.cfi_endproc
+ 162              	.LFE68:
+ 164              		.comm	hcrc,8,4
+ 165              		.section	.rodata.MX_CRC_Init.str1.4,"aMS",%progbits,1
+ 166              		.align	2
+ 167              	.LC0:
+ 168 0000 5372632F 		.ascii	"Src/crc.c\000"
+ 168      6372632E 
+ 168      6300
+ 169              		.text
+ 170              	.Letext0:
+ 171              		.file 2 "c:\\arm-none-eabi\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 172              		.file 3 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 173              		.file 4 "Drivers/CMSIS/Include/core_cm3.h"
+ 174              		.file 5 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h"
+ 175              		.file 6 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 176              		.file 7 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\lock.h"
+ 177              		.file 8 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_types.h"
+ 178              		.file 9 "c:\\arm-none-eabi\\lib\\gcc\\arm-none-eabi\\7.2.1\\include\\stddef.h"
+ 179              		.file 10 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\reent.h"
+ 180              		.file 11 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 181              		.file 12 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_crc.h"
+ 182              		.file 13 "Inc/crc.h"
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 crc.c
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:16     .text.MX_CRC_Init:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:24     .text.MX_CRC_Init:00000000 MX_CRC_Init
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:65     .text.MX_CRC_Init:00000020 $d
+                            *COM*:00000008 hcrc
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:72     .text.HAL_CRC_MspInit:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:80     .text.HAL_CRC_MspInit:00000000 HAL_CRC_MspInit
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:122    .text.HAL_CRC_MspInit:00000028 $d
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:127    .text.HAL_CRC_MspDeInit:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:135    .text.HAL_CRC_MspDeInit:00000000 HAL_CRC_MspDeInit
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:159    .text.HAL_CRC_MspDeInit:00000014 $d
+C:\Users\Jason\AppData\Local\Temp\ccuNPFOZ.s:166    .rodata.MX_CRC_Init.str1.4:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_CRC_Init
+_Error_Handler

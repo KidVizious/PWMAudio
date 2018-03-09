@@ -1,0 +1,823 @@
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"stm32f1xx_hal_crc.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.HAL_CRC_MspInit,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.weak	HAL_CRC_MspInit
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	HAL_CRC_MspInit:
+  25              	.LFB68:
+  26              		.file 1 "Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c"
+   1:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+   2:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ******************************************************************************
+   3:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @file    stm32f1xx_hal_crc.c
+   4:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @author  MCD Application Team
+   5:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @version V1.1.1
+   6:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @date    12-May-2017
+   7:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief   CRC HAL module driver.
+   8:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *          This file provides firmware functions to manage the following 
+   9:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *          functionalities of the Cyclic Redundancy Check (CRC) peripheral:
+  10:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *           + Initialization and de-initialization functions
+  11:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *           + Peripheral Control functions 
+  12:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *           + Peripheral State functions
+  13:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *
+  14:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   @verbatim
+  15:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ==============================================================================
+  16:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****                      ##### How to use this driver #####
+  17:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ==============================================================================
+  18:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     [..]
+  19:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       The CRC HAL driver can be used as follows:
+  20:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  21:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (#) Enable CRC AHB clock using __HAL_RCC_CRC_CLK_ENABLE();
+  22:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  23:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (#) Use HAL_CRC_Accumulate() function to compute the CRC value of 
+  24:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****           a 32-bit data buffer using combination of the previous CRC value
+  25:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****           and the new one.
+  26:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  27:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (#) Use HAL_CRC_Calculate() function to compute the CRC Value of 
+  28:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****           a new 32-bit data buffer. This function resets the CRC computation  
+  29:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****           unit before starting the computation to avoid getting wrong CRC values.
+  30:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  31:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   @endverbatim
+  32:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ******************************************************************************
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 2
+
+
+  33:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @attention
+  34:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *
+  35:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  36:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *
+  37:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * Redistribution and use in source and binary forms, with or without modification,
+  38:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * are permitted provided that the following conditions are met:
+  39:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *   1. Redistributions of source code must retain the above copyright notice,
+  40:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *      this list of conditions and the following disclaimer.
+  41:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *   2. Redistributions in binary form must reproduce the above copyright notice,
+  42:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *      this list of conditions and the following disclaimer in the documentation
+  43:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *      and/or other materials provided with the distribution.
+  44:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  45:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *      may be used to endorse or promote products derived from this software
+  46:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *      without specific prior written permission.
+  47:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *
+  48:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  49:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  50:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  51:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  52:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  53:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  54:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  55:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  56:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  57:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  58:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *
+  59:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ******************************************************************************
+  60:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+  61:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  62:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /* Includes ------------------------------------------------------------------*/
+  63:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** #include "stm32f1xx_hal.h"
+  64:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  65:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /** @addtogroup STM32F1xx_HAL_Driver
+  66:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @{
+  67:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+  68:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  69:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /** @defgroup CRC CRC
+  70:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief CRC HAL module driver.
+  71:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @{
+  72:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+  73:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  74:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** #ifdef HAL_CRC_MODULE_ENABLED
+  75:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  76:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /* Private typedef -----------------------------------------------------------*/
+  77:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /* Private define ------------------------------------------------------------*/
+  78:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /* Private macro -------------------------------------------------------------*/
+  79:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /* Private variables ---------------------------------------------------------*/
+  80:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /* Private function prototypes -----------------------------------------------*/
+  81:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /* Private functions ---------------------------------------------------------*/
+  82:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  83:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /** @defgroup CRC_Exported_Functions CRC Exported Functions
+  84:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @{
+  85:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+  86:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  87:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /** @defgroup CRC_Exported_Functions_Group1 Initialization and de-initialization functions 
+  88:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****  *  @brief    Initialization and Configuration functions. 
+  89:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****  *
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 3
+
+
+  90:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** @verbatim    
+  91:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ==============================================================================
+  92:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****             ##### Initialization and de-initialization functions #####
+  93:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ==============================================================================
+  94:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     [..]  This section provides functions allowing to:
+  95:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (+) Initialize the CRC according to the specified parameters 
+  96:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****           in the CRC_InitTypeDef and create the associated handle
+  97:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (+) DeInitialize the CRC peripheral
+  98:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (+) Initialize the CRC MSP
+  99:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (+) DeInitialize CRC MSP 
+ 100:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****  
+ 101:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** @endverbatim
+ 102:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @{
+ 103:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 104:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 105:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 106:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief  Initializes the CRC according to the specified
+ 107:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         parameters in the CRC_InitTypeDef and creates the associated handle.
+ 108:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  hcrc: pointer to a CRC_HandleTypeDef structure that contains
+ 109:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         the configuration information for CRC
+ 110:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @retval HAL status
+ 111:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 112:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
+ 113:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** {
+ 114:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Check the CRC handle allocation */
+ 115:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   if(hcrc == NULL)
+ 116:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 117:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     return HAL_ERROR;
+ 118:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   }
+ 119:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 120:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Check the parameters */
+ 121:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   assert_param(IS_CRC_ALL_INSTANCE(hcrc->Instance));
+ 122:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 123:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   if(hcrc->State == HAL_CRC_STATE_RESET)
+ 124:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 125:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     /* Allocate lock resource and initialize it */
+ 126:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     hcrc->Lock = HAL_UNLOCKED;
+ 127:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     
+ 128:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     /* Init the low level hardware */
+ 129:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     HAL_CRC_MspInit(hcrc);
+ 130:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   }
+ 131:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 132:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Change CRC peripheral state */
+ 133:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   hcrc->State = HAL_CRC_STATE_READY;
+ 134:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   
+ 135:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Return function status */
+ 136:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   return HAL_OK;
+ 137:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+ 138:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 139:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 140:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief  DeInitializes the CRC peripheral.
+ 141:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  hcrc: pointer to a CRC_HandleTypeDef structure that contains
+ 142:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         the configuration information for CRC
+ 143:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @retval HAL status
+ 144:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 145:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
+ 146:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** {
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 4
+
+
+ 147:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Check the CRC handle allocation */
+ 148:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   if(hcrc == NULL)
+ 149:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 150:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     return HAL_ERROR;
+ 151:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   }
+ 152:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 153:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Check the parameters */
+ 154:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   assert_param(IS_CRC_ALL_INSTANCE(hcrc->Instance));
+ 155:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 156:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Change CRC peripheral state */
+ 157:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   hcrc->State = HAL_CRC_STATE_BUSY;
+ 158:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 159:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* DeInit the low level hardware */
+ 160:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   HAL_CRC_MspDeInit(hcrc);
+ 161:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 162:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Resets the CRC calculation unit and sets the data register to 0xFFFF FFFF */
+ 163:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   __HAL_CRC_DR_RESET(hcrc);
+ 164:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 165:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Reset IDR register content */
+ 166:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   CLEAR_BIT(hcrc->Instance->IDR, CRC_IDR_IDR);
+ 167:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 168:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Change CRC peripheral state */
+ 169:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   hcrc->State = HAL_CRC_STATE_RESET;
+ 170:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 171:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Release Lock */
+ 172:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   __HAL_UNLOCK(hcrc);
+ 173:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 174:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Return function status */
+ 175:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   return HAL_OK;
+ 176:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+ 177:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 178:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 179:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief  Initializes the CRC MSP.
+ 180:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  hcrc: pointer to a CRC_HandleTypeDef structure that contains
+ 181:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         the configuration information for CRC
+ 182:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @retval None
+ 183:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 184:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** __weak void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
+ 185:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** {
+  27              		.loc 1 185 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+ 186:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Prevent unused argument(s) compilation warning */
+ 187:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   UNUSED(hcrc);
+ 188:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* NOTE : This function Should not be modified, when the callback is needed,
+ 189:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****             the HAL_CRC_MspInit could be implemented in the user file
+ 190:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****    */
+ 191:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+  33              		.loc 1 191 0
+  34 0000 7047     		bx	lr
+  35              		.cfi_endproc
+  36              	.LFE68:
+  38 0002 00BF     		.section	.text.HAL_CRC_Init,"ax",%progbits
+  39              		.align	1
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 5
+
+
+  40              		.p2align 2,,3
+  41              		.global	HAL_CRC_Init
+  42              		.syntax unified
+  43              		.thumb
+  44              		.thumb_func
+  45              		.fpu softvfp
+  47              	HAL_CRC_Init:
+  48              	.LFB66:
+ 113:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Check the CRC handle allocation */
+  49              		.loc 1 113 0
+  50              		.cfi_startproc
+  51              		@ args = 0, pretend = 0, frame = 0
+  52              		@ frame_needed = 0, uses_anonymous_args = 0
+  53              	.LVL1:
+ 115:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+  54              		.loc 1 115 0
+  55 0000 80B1     		cbz	r0, .L6
+ 123:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+  56              		.loc 1 123 0
+  57 0002 4379     		ldrb	r3, [r0, #5]	@ zero_extendqisi2
+ 113:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Check the CRC handle allocation */
+  58              		.loc 1 113 0
+  59 0004 10B5     		push	{r4, lr}
+  60              	.LCFI0:
+  61              		.cfi_def_cfa_offset 8
+  62              		.cfi_offset 4, -8
+  63              		.cfi_offset 14, -4
+ 123:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+  64              		.loc 1 123 0
+  65 0006 03F0FF02 		and	r2, r3, #255
+  66 000a 0446     		mov	r4, r0
+  67 000c 1BB1     		cbz	r3, .L11
+ 133:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   
+  68              		.loc 1 133 0
+  69 000e 0123     		movs	r3, #1
+ 136:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+  70              		.loc 1 136 0
+  71 0010 0020     		movs	r0, #0
+  72              	.LVL2:
+ 133:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   
+  73              		.loc 1 133 0
+  74 0012 6371     		strb	r3, [r4, #5]
+ 137:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  75              		.loc 1 137 0
+  76 0014 10BD     		pop	{r4, pc}
+  77              	.LVL3:
+  78              	.L11:
+ 126:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     
+  79              		.loc 1 126 0
+  80 0016 0271     		strb	r2, [r0, #4]
+ 129:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   }
+  81              		.loc 1 129 0
+  82 0018 FFF7FEFF 		bl	HAL_CRC_MspInit
+  83              	.LVL4:
+ 133:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   
+  84              		.loc 1 133 0
+  85 001c 0123     		movs	r3, #1
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 6
+
+
+ 136:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+  86              		.loc 1 136 0
+  87 001e 0020     		movs	r0, #0
+ 133:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   
+  88              		.loc 1 133 0
+  89 0020 6371     		strb	r3, [r4, #5]
+ 137:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+  90              		.loc 1 137 0
+  91 0022 10BD     		pop	{r4, pc}
+  92              	.LVL5:
+  93              	.L6:
+  94              	.LCFI1:
+  95              		.cfi_def_cfa_offset 0
+  96              		.cfi_restore 4
+  97              		.cfi_restore 14
+ 117:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   }
+  98              		.loc 1 117 0
+  99 0024 0120     		movs	r0, #1
+ 100              	.LVL6:
+ 137:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 101              		.loc 1 137 0
+ 102 0026 7047     		bx	lr
+ 103              		.cfi_endproc
+ 104              	.LFE66:
+ 106              		.section	.text.HAL_CRC_MspDeInit,"ax",%progbits
+ 107              		.align	1
+ 108              		.p2align 2,,3
+ 109              		.weak	HAL_CRC_MspDeInit
+ 110              		.syntax unified
+ 111              		.thumb
+ 112              		.thumb_func
+ 113              		.fpu softvfp
+ 115              	HAL_CRC_MspDeInit:
+ 116              	.LFB74:
+ 117              		.cfi_startproc
+ 118              		@ args = 0, pretend = 0, frame = 0
+ 119              		@ frame_needed = 0, uses_anonymous_args = 0
+ 120              		@ link register save eliminated.
+ 121 0000 7047     		bx	lr
+ 122              		.cfi_endproc
+ 123              	.LFE74:
+ 125 0002 00BF     		.section	.text.HAL_CRC_DeInit,"ax",%progbits
+ 126              		.align	1
+ 127              		.p2align 2,,3
+ 128              		.global	HAL_CRC_DeInit
+ 129              		.syntax unified
+ 130              		.thumb
+ 131              		.thumb_func
+ 132              		.fpu softvfp
+ 134              	HAL_CRC_DeInit:
+ 135              	.LFB67:
+ 146:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Check the CRC handle allocation */
+ 136              		.loc 1 146 0
+ 137              		.cfi_startproc
+ 138              		@ args = 0, pretend = 0, frame = 0
+ 139              		@ frame_needed = 0, uses_anonymous_args = 0
+ 140              	.LVL7:
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 7
+
+
+ 148:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 141              		.loc 1 148 0
+ 142 0000 88B1     		cbz	r0, .L15
+ 157:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 143              		.loc 1 157 0
+ 144 0002 0223     		movs	r3, #2
+ 146:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Check the CRC handle allocation */
+ 145              		.loc 1 146 0
+ 146 0004 10B5     		push	{r4, lr}
+ 147              	.LCFI2:
+ 148              		.cfi_def_cfa_offset 8
+ 149              		.cfi_offset 4, -8
+ 150              		.cfi_offset 14, -4
+ 151 0006 0446     		mov	r4, r0
+ 157:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 152              		.loc 1 157 0
+ 153 0008 4371     		strb	r3, [r0, #5]
+ 160:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 154              		.loc 1 160 0
+ 155 000a FFF7FEFF 		bl	HAL_CRC_MspDeInit
+ 156              	.LVL8:
+ 166:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 157              		.loc 1 166 0
+ 158 000e 0023     		movs	r3, #0
+ 163:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 159              		.loc 1 163 0
+ 160 0010 2268     		ldr	r2, [r4]
+ 175:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+ 161              		.loc 1 175 0
+ 162 0012 1846     		mov	r0, r3
+ 163:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 163              		.loc 1 163 0
+ 164 0014 9168     		ldr	r1, [r2, #8]
+ 165 0016 41F00101 		orr	r1, r1, #1
+ 166 001a 9160     		str	r1, [r2, #8]
+ 166:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 167              		.loc 1 166 0
+ 168 001c 1179     		ldrb	r1, [r2, #4]	@ zero_extendqisi2
+ 169 001e 1371     		strb	r3, [r2, #4]
+ 169:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 170              		.loc 1 169 0
+ 171 0020 6371     		strb	r3, [r4, #5]
+ 172:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 172              		.loc 1 172 0
+ 173 0022 2371     		strb	r3, [r4, #4]
+ 176:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 174              		.loc 1 176 0
+ 175 0024 10BD     		pop	{r4, pc}
+ 176              	.LVL9:
+ 177              	.L15:
+ 178              	.LCFI3:
+ 179              		.cfi_def_cfa_offset 0
+ 180              		.cfi_restore 4
+ 181              		.cfi_restore 14
+ 150:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   }
+ 182              		.loc 1 150 0
+ 183 0026 0120     		movs	r0, #1
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 8
+
+
+ 184              	.LVL10:
+ 176:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 185              		.loc 1 176 0
+ 186 0028 7047     		bx	lr
+ 187              		.cfi_endproc
+ 188              	.LFE67:
+ 190 002a 00BF     		.section	.text.HAL_CRC_Accumulate,"ax",%progbits
+ 191              		.align	1
+ 192              		.p2align 2,,3
+ 193              		.global	HAL_CRC_Accumulate
+ 194              		.syntax unified
+ 195              		.thumb
+ 196              		.thumb_func
+ 197              		.fpu softvfp
+ 199              	HAL_CRC_Accumulate:
+ 200              	.LFB70:
+ 192:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 193:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 194:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief  DeInitializes the CRC MSP.
+ 195:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  hcrc: pointer to a CRC_HandleTypeDef structure that contains
+ 196:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         the configuration information for CRC
+ 197:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @retval None
+ 198:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 199:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** __weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
+ 200:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** {
+ 201:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Prevent unused argument(s) compilation warning */
+ 202:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   UNUSED(hcrc);
+ 203:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* NOTE : This function Should not be modified, when the callback is needed,
+ 204:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****             the HAL_CRC_MspDeInit could be implemented in the user file
+ 205:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****    */
+ 206:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+ 207:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 208:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 209:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @}
+ 210:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 211:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 212:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /** @defgroup CRC_Exported_Functions_Group2 Peripheral Control functions 
+ 213:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****  *  @brief    management functions. 
+ 214:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****  *
+ 215:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** @verbatim   
+ 216:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ==============================================================================
+ 217:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****                       ##### Peripheral Control functions #####
+ 218:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ==============================================================================  
+ 219:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     [..]  This section provides functions allowing to:
+ 220:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (+) Compute the 32-bit CRC value of 32-bit data buffer,
+ 221:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****           using combination of the previous CRC value and the new one.
+ 222:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****       (+) Compute the 32-bit CRC value of 32-bit data buffer,
+ 223:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****           independently of the previous CRC value.
+ 224:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 225:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** @endverbatim
+ 226:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @{
+ 227:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 228:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 229:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 230:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief  Computes the 32-bit CRC of 32-bit data buffer using combination
+ 231:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         of the previous CRC value and the new one.
+ 232:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  hcrc: pointer to a CRC_HandleTypeDef structure that contains
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 9
+
+
+ 233:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         the configuration information for CRC
+ 234:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  pBuffer: pointer to the buffer containing the data to be computed
+ 235:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  BufferLength: length of the buffer to be computed (defined in word, 4 bytes)
+ 236:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @retval 32-bit CRC
+ 237:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 238:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength)
+ 239:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** {
+ 201              		.loc 1 239 0
+ 202              		.cfi_startproc
+ 203              		@ args = 0, pretend = 0, frame = 0
+ 204              		@ frame_needed = 0, uses_anonymous_args = 0
+ 205              		@ link register save eliminated.
+ 206              	.LVL11:
+ 240:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   uint32_t index = 0U;
+ 241:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 242:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Process Locked */
+ 243:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   __HAL_LOCK(hcrc);
+ 207              		.loc 1 243 0
+ 208 0000 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 209 0002 012B     		cmp	r3, #1
+ 210 0004 16D0     		beq	.L24
+ 239:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   uint32_t index = 0U;
+ 211              		.loc 1 239 0 discriminator 2
+ 212 0006 10B4     		push	{r4}
+ 213              	.LCFI4:
+ 214              		.cfi_def_cfa_offset 4
+ 215              		.cfi_offset 4, -4
+ 244:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 245:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Change CRC peripheral state */
+ 246:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   hcrc->State = HAL_CRC_STATE_BUSY;
+ 216              		.loc 1 246 0 discriminator 2
+ 217 0008 0223     		movs	r3, #2
+ 243:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 218              		.loc 1 243 0 discriminator 2
+ 219 000a 0124     		movs	r4, #1
+ 220              		.loc 1 246 0 discriminator 2
+ 221 000c 4371     		strb	r3, [r0, #5]
+ 243:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 222              		.loc 1 243 0 discriminator 2
+ 223 000e 0471     		strb	r4, [r0, #4]
+ 224 0010 0468     		ldr	r4, [r0]
+ 247:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 248:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Enter Data to the CRC calculator */
+ 249:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   for(index = 0U; index < BufferLength; index++)
+ 225              		.loc 1 249 0 discriminator 2
+ 226 0012 3AB1     		cbz	r2, .L22
+ 227 0014 0439     		subs	r1, r1, #4
+ 228              	.LVL12:
+ 229 0016 01EB8202 		add	r2, r1, r2, lsl #2
+ 230              	.LVL13:
+ 231              	.L23:
+ 250:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 251:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     hcrc->Instance->DR = pBuffer[index];
+ 232              		.loc 1 251 0 discriminator 3
+ 233 001a 51F8043F 		ldr	r3, [r1, #4]!
+ 249:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 234              		.loc 1 249 0 discriminator 3
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 10
+
+
+ 235 001e 8A42     		cmp	r2, r1
+ 236              		.loc 1 251 0 discriminator 3
+ 237 0020 2360     		str	r3, [r4]
+ 249:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 238              		.loc 1 249 0 discriminator 3
+ 239 0022 FAD1     		bne	.L23
+ 240              	.L22:
+ 252:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   }
+ 253:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 254:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Change CRC peripheral state */
+ 255:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   hcrc->State = HAL_CRC_STATE_READY;
+ 241              		.loc 1 255 0
+ 242 0024 0123     		movs	r3, #1
+ 256:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 257:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Process Unlocked */
+ 258:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   __HAL_UNLOCK(hcrc);
+ 243              		.loc 1 258 0
+ 244 0026 0022     		movs	r2, #0
+ 255:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 245              		.loc 1 255 0
+ 246 0028 4371     		strb	r3, [r0, #5]
+ 259:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 260:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Return the CRC computed value */
+ 261:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   return hcrc->Instance->DR;
+ 247              		.loc 1 261 0
+ 248 002a 2368     		ldr	r3, [r4]
+ 258:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 249              		.loc 1 258 0
+ 250 002c 0271     		strb	r2, [r0, #4]
+ 262:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+ 251              		.loc 1 262 0
+ 252 002e 10BC     		pop	{r4}
+ 253              	.LCFI5:
+ 254              		.cfi_restore 4
+ 255              		.cfi_def_cfa_offset 0
+ 256 0030 1846     		mov	r0, r3
+ 257              	.LVL14:
+ 258 0032 7047     		bx	lr
+ 259              	.LVL15:
+ 260              	.L24:
+ 243:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 261              		.loc 1 243 0
+ 262 0034 0223     		movs	r3, #2
+ 263              		.loc 1 262 0
+ 264 0036 1846     		mov	r0, r3
+ 265              	.LVL16:
+ 266 0038 7047     		bx	lr
+ 267              		.cfi_endproc
+ 268              	.LFE70:
+ 270 003a 00BF     		.section	.text.HAL_CRC_Calculate,"ax",%progbits
+ 271              		.align	1
+ 272              		.p2align 2,,3
+ 273              		.global	HAL_CRC_Calculate
+ 274              		.syntax unified
+ 275              		.thumb
+ 276              		.thumb_func
+ 277              		.fpu softvfp
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 11
+
+
+ 279              	HAL_CRC_Calculate:
+ 280              	.LFB71:
+ 263:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 264:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 265:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief  Computes the 32-bit CRC of 32-bit data buffer independently
+ 266:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         of the previous CRC value.
+ 267:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  hcrc: pointer to a CRC_HandleTypeDef structure that contains
+ 268:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         the configuration information for CRC
+ 269:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  pBuffer: Pointer to the buffer containing the data to be computed
+ 270:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  BufferLength: Length of the buffer to be computed (defined in word, 4 bytes)
+ 271:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @retval 32-bit CRC
+ 272:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 273:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength)
+ 274:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** {
+ 281              		.loc 1 274 0
+ 282              		.cfi_startproc
+ 283              		@ args = 0, pretend = 0, frame = 0
+ 284              		@ frame_needed = 0, uses_anonymous_args = 0
+ 285              		@ link register save eliminated.
+ 286              	.LVL17:
+ 275:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   uint32_t index = 0U;
+ 276:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 277:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Process Locked */
+ 278:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   __HAL_LOCK(hcrc); 
+ 287              		.loc 1 278 0
+ 288 0000 0379     		ldrb	r3, [r0, #4]	@ zero_extendqisi2
+ 289 0002 012B     		cmp	r3, #1
+ 290 0004 19D0     		beq	.L37
+ 279:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 280:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Change CRC peripheral state */
+ 281:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   hcrc->State = HAL_CRC_STATE_BUSY;
+ 291              		.loc 1 281 0 discriminator 2
+ 292 0006 0223     		movs	r3, #2
+ 274:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   uint32_t index = 0U;
+ 293              		.loc 1 274 0 discriminator 2
+ 294 0008 30B4     		push	{r4, r5}
+ 295              	.LCFI6:
+ 296              		.cfi_def_cfa_offset 8
+ 297              		.cfi_offset 4, -8
+ 298              		.cfi_offset 5, -4
+ 278:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 299              		.loc 1 278 0 discriminator 2
+ 300 000a 0125     		movs	r5, #1
+ 282:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 283:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Reset CRC Calculation Unit */
+ 284:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   __HAL_CRC_DR_RESET(hcrc);
+ 301              		.loc 1 284 0 discriminator 2
+ 302 000c 0468     		ldr	r4, [r0]
+ 281:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 303              		.loc 1 281 0 discriminator 2
+ 304 000e 4371     		strb	r3, [r0, #5]
+ 305              		.loc 1 284 0 discriminator 2
+ 306 0010 A368     		ldr	r3, [r4, #8]
+ 278:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 307              		.loc 1 278 0 discriminator 2
+ 308 0012 0571     		strb	r5, [r0, #4]
+ 309              		.loc 1 284 0 discriminator 2
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 12
+
+
+ 310 0014 2B43     		orrs	r3, r3, r5
+ 311 0016 A360     		str	r3, [r4, #8]
+ 285:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 286:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Enter Data to the CRC calculator */
+ 287:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   for(index = 0U; index < BufferLength; index++)
+ 312              		.loc 1 287 0 discriminator 2
+ 313 0018 3AB1     		cbz	r2, .L35
+ 314 001a 0439     		subs	r1, r1, #4
+ 315              	.LVL18:
+ 316 001c 01EB8202 		add	r2, r1, r2, lsl #2
+ 317              	.LVL19:
+ 318              	.L36:
+ 288:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 289:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     hcrc->Instance->DR = pBuffer[index];
+ 319              		.loc 1 289 0 discriminator 3
+ 320 0020 51F8043F 		ldr	r3, [r1, #4]!
+ 287:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 321              		.loc 1 287 0 discriminator 3
+ 322 0024 9142     		cmp	r1, r2
+ 323              		.loc 1 289 0 discriminator 3
+ 324 0026 2360     		str	r3, [r4]
+ 287:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   {
+ 325              		.loc 1 287 0 discriminator 3
+ 326 0028 FAD1     		bne	.L36
+ 327              	.L35:
+ 290:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   }
+ 291:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 292:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Change CRC peripheral state */
+ 293:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   hcrc->State = HAL_CRC_STATE_READY;
+ 328              		.loc 1 293 0
+ 329 002a 0123     		movs	r3, #1
+ 294:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 295:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Process Unlocked */
+ 296:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   __HAL_UNLOCK(hcrc);
+ 330              		.loc 1 296 0
+ 331 002c 0022     		movs	r2, #0
+ 293:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 332              		.loc 1 293 0
+ 333 002e 4371     		strb	r3, [r0, #5]
+ 297:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 298:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   /* Return the CRC computed value */
+ 299:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   return hcrc->Instance->DR;
+ 334              		.loc 1 299 0
+ 335 0030 2368     		ldr	r3, [r4]
+ 296:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 336              		.loc 1 296 0
+ 337 0032 0271     		strb	r2, [r0, #4]
+ 300:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+ 338              		.loc 1 300 0
+ 339 0034 30BC     		pop	{r4, r5}
+ 340              	.LCFI7:
+ 341              		.cfi_restore 5
+ 342              		.cfi_restore 4
+ 343              		.cfi_def_cfa_offset 0
+ 344 0036 1846     		mov	r0, r3
+ 345              	.LVL20:
+ 346 0038 7047     		bx	lr
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 13
+
+
+ 347              	.LVL21:
+ 348              	.L37:
+ 278:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 349              		.loc 1 278 0
+ 350 003a 0223     		movs	r3, #2
+ 351              		.loc 1 300 0
+ 352 003c 1846     		mov	r0, r3
+ 353              	.LVL22:
+ 354 003e 7047     		bx	lr
+ 355              		.cfi_endproc
+ 356              	.LFE71:
+ 358              		.section	.text.HAL_CRC_GetState,"ax",%progbits
+ 359              		.align	1
+ 360              		.p2align 2,,3
+ 361              		.global	HAL_CRC_GetState
+ 362              		.syntax unified
+ 363              		.thumb
+ 364              		.thumb_func
+ 365              		.fpu softvfp
+ 367              	HAL_CRC_GetState:
+ 368              	.LFB72:
+ 301:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 302:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 303:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @}
+ 304:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 305:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 306:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /** @defgroup CRC_Exported_Functions_Group3 Peripheral State functions 
+ 307:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****  *  @brief    Peripheral State functions. 
+ 308:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****  *
+ 309:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** @verbatim   
+ 310:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ==============================================================================
+ 311:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****                       ##### Peripheral State functions #####
+ 312:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   ==============================================================================  
+ 313:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     [..]
+ 314:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****     This subsection permits to get in run-time the status of the peripheral.
+ 315:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 316:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** @endverbatim
+ 317:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @{
+ 318:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 319:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** 
+ 320:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** /**
+ 321:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @brief  Returns the CRC state.
+ 322:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @param  hcrc: pointer to a CRC_HandleTypeDef structure that contains
+ 323:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   *         the configuration information for CRC
+ 324:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   * @retval HAL state
+ 325:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   */
+ 326:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc)
+ 327:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** {
+ 369              		.loc 1 327 0
+ 370              		.cfi_startproc
+ 371              		@ args = 0, pretend = 0, frame = 0
+ 372              		@ frame_needed = 0, uses_anonymous_args = 0
+ 373              		@ link register save eliminated.
+ 374              	.LVL23:
+ 328:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c ****   return hcrc->State;
+ 375              		.loc 1 328 0
+ 376 0000 4079     		ldrb	r0, [r0, #5]	@ zero_extendqisi2
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 14
+
+
+ 377              	.LVL24:
+ 329:Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c **** }
+ 378              		.loc 1 329 0
+ 379 0002 7047     		bx	lr
+ 380              		.cfi_endproc
+ 381              	.LFE72:
+ 383              		.text
+ 384              	.Letext0:
+ 385              		.file 2 "c:\\arm-none-eabi\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 386              		.file 3 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 387              		.file 4 "Drivers/CMSIS/Include/core_cm3.h"
+ 388              		.file 5 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h"
+ 389              		.file 6 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 390              		.file 7 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\lock.h"
+ 391              		.file 8 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_types.h"
+ 392              		.file 9 "c:\\arm-none-eabi\\lib\\gcc\\arm-none-eabi\\7.2.1\\include\\stddef.h"
+ 393              		.file 10 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\reent.h"
+ 394              		.file 11 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 395              		.file 12 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_crc.h"
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s 			page 15
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f1xx_hal_crc.c
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:16     .text.HAL_CRC_MspInit:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:24     .text.HAL_CRC_MspInit:00000000 HAL_CRC_MspInit
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:39     .text.HAL_CRC_Init:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:47     .text.HAL_CRC_Init:00000000 HAL_CRC_Init
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:107    .text.HAL_CRC_MspDeInit:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:115    .text.HAL_CRC_MspDeInit:00000000 HAL_CRC_MspDeInit
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:126    .text.HAL_CRC_DeInit:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:134    .text.HAL_CRC_DeInit:00000000 HAL_CRC_DeInit
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:191    .text.HAL_CRC_Accumulate:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:199    .text.HAL_CRC_Accumulate:00000000 HAL_CRC_Accumulate
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:271    .text.HAL_CRC_Calculate:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:279    .text.HAL_CRC_Calculate:00000000 HAL_CRC_Calculate
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:359    .text.HAL_CRC_GetState:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccGfGXDO.s:367    .text.HAL_CRC_GetState:00000000 HAL_CRC_GetState
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,363 @@
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\cceEr46N.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"Ring.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.Ring_GetNumBytesInBuffer,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.global	Ring_GetNumBytesInBuffer
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	Ring_GetNumBytesInBuffer:
+  25              	.LFB67:
+  26              		.file 1 "Src/Ring.c"
+   1:Src/Ring.c    **** #include "stm32f1xx_hal.h"
+   2:Src/Ring.c    **** #include "Ring.h"
+   3:Src/Ring.c    **** 
+   4:Src/Ring.c    **** #define RING_QSIZE 16384
+   5:Src/Ring.c    **** 
+   6:Src/Ring.c    **** static uint8_t buffer[RING_QSIZE];
+   7:Src/Ring.c    **** static uint16_t head;
+   8:Src/Ring.c    **** static uint16_t tail;
+   9:Src/Ring.c    **** static uint16_t size;
+  10:Src/Ring.c    **** 
+  11:Src/Ring.c    **** extern UART_HandleTypeDef huart2;
+  12:Src/Ring.c    **** 
+  13:Src/Ring.c    **** static uint16_t inc(uint16_t x)
+  14:Src/Ring.c    **** {
+  15:Src/Ring.c    ****     return (x + 1) % RING_QSIZE;
+  16:Src/Ring.c    **** }
+  17:Src/Ring.c    **** 
+  18:Src/Ring.c    **** uint32_t Ring_GetNumBytesInBuffer(void)
+  19:Src/Ring.c    **** {
+  27              		.loc 1 19 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  20:Src/Ring.c    ****     return size;
+  32              		.loc 1 20 0
+  33 0000 014B     		ldr	r3, .L3
+  21:Src/Ring.c    **** }
+  34              		.loc 1 21 0
+  35 0002 1888     		ldrh	r0, [r3]
+  36 0004 7047     		bx	lr
+  37              	.L4:
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\cceEr46N.s 			page 2
+
+
+  38 0006 00BF     		.align	2
+  39              	.L3:
+  40 0008 00000000 		.word	.LANCHOR0
+  41              		.cfi_endproc
+  42              	.LFE67:
+  44              		.section	.text.Ring_AddByte,"ax",%progbits
+  45              		.align	1
+  46              		.p2align 2,,3
+  47              		.global	Ring_AddByte
+  48              		.syntax unified
+  49              		.thumb
+  50              		.thumb_func
+  51              		.fpu softvfp
+  53              	Ring_AddByte:
+  54              	.LFB68:
+  22:Src/Ring.c    **** 
+  23:Src/Ring.c    **** void Ring_AddByte(uint8_t byte)
+  24:Src/Ring.c    **** {
+  55              		.loc 1 24 0
+  56              		.cfi_startproc
+  57              		@ args = 0, pretend = 0, frame = 0
+  58              		@ frame_needed = 0, uses_anonymous_args = 0
+  59              	.LVL0:
+  60 0000 70B5     		push	{r4, r5, r6, lr}
+  61              	.LCFI0:
+  62              		.cfi_def_cfa_offset 16
+  63              		.cfi_offset 4, -16
+  64              		.cfi_offset 5, -12
+  65              		.cfi_offset 6, -8
+  66              		.cfi_offset 14, -4
+  25:Src/Ring.c    ****     if (inc(head) != tail)
+  67              		.loc 1 25 0
+  68 0002 114C     		ldr	r4, .L10
+  69 0004 114B     		ldr	r3, .L10+4
+  70              	.LBB9:
+  71              	.LBB10:
+  15:Src/Ring.c    **** }
+  72              		.loc 1 15 0
+  73 0006 2188     		ldrh	r1, [r4]
+  74              	.LBE10:
+  75              	.LBE9:
+  76              		.loc 1 25 0
+  77 0008 1A88     		ldrh	r2, [r3]
+  78              	.LBB12:
+  79              	.LBB11:
+  15:Src/Ring.c    **** }
+  80              		.loc 1 15 0
+  81 000a 4B1C     		adds	r3, r1, #1
+  82 000c C3F30D03 		ubfx	r3, r3, #0, #14
+  83              	.LVL1:
+  84              	.LBE11:
+  85              	.LBE12:
+  86              		.loc 1 25 0
+  87 0010 9A42     		cmp	r2, r3
+  88 0012 0BD0     		beq	.L5
+  26:Src/Ring.c    ****     {
+  27:Src/Ring.c    ****         ++size;
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\cceEr46N.s 			page 3
+
+
+  89              		.loc 1 27 0
+  90 0014 0E4D     		ldr	r5, .L10+8
+  91 0016 0646     		mov	r6, r0
+  92 0018 2A88     		ldrh	r2, [r5]
+  93 001a 0132     		adds	r2, r2, #1
+  94 001c 92B2     		uxth	r2, r2
+  28:Src/Ring.c    ****         if (size > (RING_QSIZE - 256))
+  95              		.loc 1 28 0
+  96 001e B2F57C5F 		cmp	r2, #16128
+  27:Src/Ring.c    ****         if (size > (RING_QSIZE - 256))
+  97              		.loc 1 27 0
+  98 0022 2A80     		strh	r2, [r5]	@ movhi
+  99              		.loc 1 28 0
+ 100 0024 03D8     		bhi	.L9
+  29:Src/Ring.c    ****         {
+  30:Src/Ring.c    ****             HAL_UART_Transmit_IT(&huart2, "W", 1);
+  31:Src/Ring.c    ****         }
+  32:Src/Ring.c    ****         buffer[head] = byte;
+ 101              		.loc 1 32 0
+ 102 0026 0B4A     		ldr	r2, .L10+12
+  33:Src/Ring.c    ****         head = inc(head);
+ 103              		.loc 1 33 0
+ 104 0028 2380     		strh	r3, [r4]	@ movhi
+  32:Src/Ring.c    ****         head = inc(head);
+ 105              		.loc 1 32 0
+ 106 002a 5654     		strb	r6, [r2, r1]
+ 107              	.LVL2:
+ 108              	.L5:
+  34:Src/Ring.c    ****     }
+  35:Src/Ring.c    **** }
+ 109              		.loc 1 35 0
+ 110 002c 70BD     		pop	{r4, r5, r6, pc}
+ 111              	.LVL3:
+ 112              	.L9:
+  30:Src/Ring.c    ****         }
+ 113              		.loc 1 30 0
+ 114 002e 0122     		movs	r2, #1
+ 115 0030 0949     		ldr	r1, .L10+16
+ 116 0032 0A48     		ldr	r0, .L10+20
+ 117              	.LVL4:
+ 118 0034 FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 119              	.LVL5:
+ 120 0038 2188     		ldrh	r1, [r4]
+  32:Src/Ring.c    ****         head = inc(head);
+ 121              		.loc 1 32 0
+ 122 003a 064A     		ldr	r2, .L10+12
+ 123 003c 4B1C     		adds	r3, r1, #1
+ 124 003e C3F30D03 		ubfx	r3, r3, #0, #14
+  33:Src/Ring.c    ****     }
+ 125              		.loc 1 33 0
+ 126 0042 2380     		strh	r3, [r4]	@ movhi
+  32:Src/Ring.c    ****         head = inc(head);
+ 127              		.loc 1 32 0
+ 128 0044 5654     		strb	r6, [r2, r1]
+ 129 0046 F1E7     		b	.L5
+ 130              	.L11:
+ 131              		.align	2
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\cceEr46N.s 			page 4
+
+
+ 132              	.L10:
+ 133 0048 00000000 		.word	.LANCHOR1
+ 134 004c 00000000 		.word	.LANCHOR2
+ 135 0050 00000000 		.word	.LANCHOR0
+ 136 0054 00000000 		.word	buffer
+ 137 0058 00000000 		.word	.LC0
+ 138 005c 00000000 		.word	huart2
+ 139              		.cfi_endproc
+ 140              	.LFE68:
+ 142              		.section	.text.Ring_GetByte,"ax",%progbits
+ 143              		.align	1
+ 144              		.p2align 2,,3
+ 145              		.global	Ring_GetByte
+ 146              		.syntax unified
+ 147              		.thumb
+ 148              		.thumb_func
+ 149              		.fpu softvfp
+ 151              	Ring_GetByte:
+ 152              	.LFB69:
+  36:Src/Ring.c    **** 
+  37:Src/Ring.c    **** uint8_t Ring_GetByte(void)
+  38:Src/Ring.c    **** {
+ 153              		.loc 1 38 0
+ 154              		.cfi_startproc
+ 155              		@ args = 0, pretend = 0, frame = 0
+ 156              		@ frame_needed = 0, uses_anonymous_args = 0
+ 157              		@ link register save eliminated.
+  39:Src/Ring.c    ****     if (head != tail)
+ 158              		.loc 1 39 0
+ 159 0000 0948     		ldr	r0, .L18
+ 160 0002 0A4A     		ldr	r2, .L18+4
+ 161 0004 0388     		ldrh	r3, [r0]
+ 162 0006 1288     		ldrh	r2, [r2]
+ 163 0008 9A42     		cmp	r2, r3
+ 164 000a 0CD0     		beq	.L13
+  38:Src/Ring.c    ****     if (head != tail)
+ 165              		.loc 1 38 0
+ 166 000c 30B4     		push	{r4, r5}
+ 167              	.LCFI1:
+ 168              		.cfi_def_cfa_offset 8
+ 169              		.cfi_offset 4, -8
+ 170              		.cfi_offset 5, -4
+ 171              	.LBB13:
+  40:Src/Ring.c    ****     {
+  41:Src/Ring.c    ****         uint8_t byte = buffer[tail];
+  42:Src/Ring.c    ****         --size;
+ 172              		.loc 1 42 0
+ 173 000e 084C     		ldr	r4, .L18+8
+  41:Src/Ring.c    ****         --size;
+ 174              		.loc 1 41 0
+ 175 0010 084D     		ldr	r5, .L18+12
+ 176              		.loc 1 42 0
+ 177 0012 2188     		ldrh	r1, [r4]
+ 178              	.LBB14:
+ 179              	.LBB15:
+  15:Src/Ring.c    **** }
+ 180              		.loc 1 15 0
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\cceEr46N.s 			page 5
+
+
+ 181 0014 5A1C     		adds	r2, r3, #1
+ 182              	.LBE15:
+ 183              	.LBE14:
+ 184              		.loc 1 42 0
+ 185 0016 0139     		subs	r1, r1, #1
+ 186              	.LBB18:
+ 187              	.LBB16:
+  15:Src/Ring.c    **** }
+ 188              		.loc 1 15 0
+ 189 0018 C2F30D02 		ubfx	r2, r2, #0, #14
+ 190              	.LBE16:
+ 191              	.LBE18:
+ 192              		.loc 1 42 0
+ 193 001c 2180     		strh	r1, [r4]	@ movhi
+ 194              	.LBB19:
+ 195              	.LBB17:
+  15:Src/Ring.c    **** }
+ 196              		.loc 1 15 0
+ 197 001e 0280     		strh	r2, [r0]	@ movhi
+ 198              	.LBE17:
+ 199              	.LBE19:
+  41:Src/Ring.c    ****         --size;
+ 200              		.loc 1 41 0
+ 201 0020 E85C     		ldrb	r0, [r5, r3]	@ zero_extendqisi2
+ 202              	.LVL6:
+ 203              	.LBE13:
+  43:Src/Ring.c    ****         tail = inc(tail);
+  44:Src/Ring.c    ****         return byte;
+  45:Src/Ring.c    ****     }
+  46:Src/Ring.c    **** }...
+ 204              		.loc 1 46 0
+ 205 0022 30BC     		pop	{r4, r5}
+ 206              	.LCFI2:
+ 207              		.cfi_restore 5
+ 208              		.cfi_restore 4
+ 209              		.cfi_def_cfa_offset 0
+ 210 0024 7047     		bx	lr
+ 211              	.LVL7:
+ 212              	.L13:
+ 213 0026 7047     		bx	lr
+ 214              	.L19:
+ 215              		.align	2
+ 216              	.L18:
+ 217 0028 00000000 		.word	.LANCHOR2
+ 218 002c 00000000 		.word	.LANCHOR1
+ 219 0030 00000000 		.word	.LANCHOR0
+ 220 0034 00000000 		.word	buffer
+ 221              		.cfi_endproc
+ 222              	.LFE69:
+ 224              		.section	.bss.buffer,"aw",%nobits
+ 225              		.align	2
+ 228              	buffer:
+ 229 0000 00000000 		.space	16384
+ 229      00000000 
+ 229      00000000 
+ 229      00000000 
+ 229      00000000 
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\cceEr46N.s 			page 6
+
+
+ 230              		.section	.bss.head,"aw",%nobits
+ 231              		.align	1
+ 232              		.set	.LANCHOR1,. + 0
+ 235              	head:
+ 236 0000 0000     		.space	2
+ 237              		.section	.bss.size,"aw",%nobits
+ 238              		.align	1
+ 239              		.set	.LANCHOR0,. + 0
+ 242              	size:
+ 243 0000 0000     		.space	2
+ 244              		.section	.bss.tail,"aw",%nobits
+ 245              		.align	1
+ 246              		.set	.LANCHOR2,. + 0
+ 249              	tail:
+ 250 0000 0000     		.space	2
+ 251              		.section	.rodata.Ring_AddByte.str1.4,"aMS",%progbits,1
+ 252              		.align	2
+ 253              	.LC0:
+ 254 0000 5700     		.ascii	"W\000"
+ 255              		.text
+ 256              	.Letext0:
+ 257              		.file 2 "c:\\arm-none-eabi\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 258              		.file 3 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 259              		.file 4 "Drivers/CMSIS/Include/core_cm3.h"
+ 260              		.file 5 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h"
+ 261              		.file 6 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 262              		.file 7 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\lock.h"
+ 263              		.file 8 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_types.h"
+ 264              		.file 9 "c:\\arm-none-eabi\\lib\\gcc\\arm-none-eabi\\7.2.1\\include\\stddef.h"
+ 265              		.file 10 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\reent.h"
+ 266              		.file 11 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 267              		.file 12 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 268              		.file 13 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h"
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\cceEr46N.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 Ring.c
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:16     .text.Ring_GetNumBytesInBuffer:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:24     .text.Ring_GetNumBytesInBuffer:00000000 Ring_GetNumBytesInBuffer
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:40     .text.Ring_GetNumBytesInBuffer:00000008 $d
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:45     .text.Ring_AddByte:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:53     .text.Ring_AddByte:00000000 Ring_AddByte
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:133    .text.Ring_AddByte:00000048 $d
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:228    .bss.buffer:00000000 buffer
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:143    .text.Ring_GetByte:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:151    .text.Ring_GetByte:00000000 Ring_GetByte
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:217    .text.Ring_GetByte:00000028 $d
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:225    .bss.buffer:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:231    .bss.head:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:235    .bss.head:00000000 head
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:238    .bss.size:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:242    .bss.size:00000000 size
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:245    .bss.tail:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:249    .bss.tail:00000000 tail
+C:\Users\Jason\AppData\Local\Temp\cceEr46N.s:252    .rodata.Ring_AddByte.str1.4:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_UART_Transmit_IT
+huart2

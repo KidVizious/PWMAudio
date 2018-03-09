@@ -1,0 +1,101 @@
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccyK1lEv.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"Song.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.Song_Start,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.global	Song_Start
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	Song_Start:
+  25              	.LFB0:
+  26              		.file 1 "Src/Song.c"
+   1:Src/Song.c    **** #include "Song.h"
+   2:Src/Song.c    **** static uint32_t byteCount;
+   3:Src/Song.c    **** 
+   4:Src/Song.c    **** static const uint8_t song[] =
+   5:Src/Song.c    ****     {
+   6:Src/Song.c    **** 
+   7:Src/Song.c    **** };
+   8:Src/Song.c    **** 
+   9:Src/Song.c    **** void Song_Start(void)
+  10:Src/Song.c    **** {
+  27              		.loc 1 10 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  11:Src/Song.c    ****     byteCount = 0;
+  12:Src/Song.c    **** }
+  32              		.loc 1 12 0
+  33 0000 7047     		bx	lr
+  34              		.cfi_endproc
+  35              	.LFE0:
+  37 0002 00BF     		.section	.text.Song_GetNextByte,"ax",%progbits
+  38              		.align	1
+  39              		.p2align 2,,3
+  40              		.global	Song_GetNextByte
+  41              		.syntax unified
+  42              		.thumb
+  43              		.thumb_func
+  44              		.fpu softvfp
+  46              	Song_GetNextByte:
+  47              	.LFB1:
+  13:Src/Song.c    **** 
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccyK1lEv.s 			page 2
+
+
+  14:Src/Song.c    **** uint8_t Song_GetNextByte(void)
+  15:Src/Song.c    **** {
+  48              		.loc 1 15 0
+  49              		.cfi_startproc
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 0, uses_anonymous_args = 0
+  52              		@ link register save eliminated.
+  16:Src/Song.c    ****     if (byteCount < (sizeof(song) / sizeof(song[0])))
+  17:Src/Song.c    ****     {
+  18:Src/Song.c    ****         uint8_t nextByte = song[byteCount];
+  19:Src/Song.c    ****         ++byteCount;
+  20:Src/Song.c    ****         return nextByte;
+  21:Src/Song.c    ****     }
+  22:Src/Song.c    ****     else
+  23:Src/Song.c    ****     {
+  24:Src/Song.c    ****         return 0;
+  25:Src/Song.c    ****     }
+  26:Src/Song.c    **** }...
+  53              		.loc 1 26 0
+  54 0000 0020     		movs	r0, #0
+  55 0002 7047     		bx	lr
+  56              		.cfi_endproc
+  57              	.LFE1:
+  59              		.text
+  60              	.Letext0:
+  61              		.file 2 "c:\\arm-none-eabi\\arm-none-eabi\\include\\machine\\_default_types.h"
+  62              		.file 3 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_stdint.h"
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccyK1lEv.s 			page 3
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 Song.c
+C:\Users\Jason\AppData\Local\Temp\ccyK1lEv.s:16     .text.Song_Start:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccyK1lEv.s:24     .text.Song_Start:00000000 Song_Start
+C:\Users\Jason\AppData\Local\Temp\ccyK1lEv.s:38     .text.Song_GetNextByte:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccyK1lEv.s:46     .text.Song_GetNextByte:00000000 Song_GetNextByte
+
+NO UNDEFINED SYMBOLS

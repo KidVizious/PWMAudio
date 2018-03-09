@@ -1,0 +1,1197 @@
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"Slip.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.Slip_Send,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.global	Slip_Send
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	Slip_Send:
+  25              	.LFB68:
+  26              		.file 1 "Src/Slip.c"
+   1:Src/Slip.c    **** //==============================================================================
+   2:Src/Slip.c    **** // Copyright © 2018 KidVizious
+   3:Src/Slip.c    **** //==============================================================================
+   4:Src/Slip.c    **** #include "stm32f1xx_hal.h"
+   5:Src/Slip.c    **** #include "Slip.h"
+   6:Src/Slip.c    **** 
+   7:Src/Slip.c    **** //==============================================================================
+   8:Src/Slip.c    **** // Private defines and constants
+   9:Src/Slip.c    **** //==============================================================================
+  10:Src/Slip.c    **** #define END 0xc0
+  11:Src/Slip.c    **** #define ESC 0xdb
+  12:Src/Slip.c    **** #define ESC_END 0xdc
+  13:Src/Slip.c    **** #define ESC_ESC 0xdd
+  14:Src/Slip.c    **** 
+  15:Src/Slip.c    **** //==============================================================================
+  16:Src/Slip.c    **** // Private typedefs
+  17:Src/Slip.c    **** //==============================================================================
+  18:Src/Slip.c    **** 
+  19:Src/Slip.c    **** //==============================================================================
+  20:Src/Slip.c    **** // Private variables
+  21:Src/Slip.c    **** //==============================================================================
+  22:Src/Slip.c    **** static struct pt slipReceivePt;
+  23:Src/Slip.c    **** static struct pt slipSendPt;
+  24:Src/Slip.c    **** static uint8_t *receiveBuffer;
+  25:Src/Slip.c    **** static uint32_t receiveBufferSize;
+  26:Src/Slip.c    **** static uint8_t *sendBuffer;
+  27:Src/Slip.c    **** static uint32_t sendLength;
+  28:Src/Slip.c    **** static SlipDoneCallback_t receiveDoneCallback;
+  29:Src/Slip.c    **** static SlipDoneCallback_t sendDoneCallback;
+  30:Src/Slip.c    **** static uint8_t data;
+  31:Src/Slip.c    **** extern UART_HandleTypeDef huart2;
+  32:Src/Slip.c    **** //==============================================================================
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 2
+
+
+  33:Src/Slip.c    **** // Private function definitions
+  34:Src/Slip.c    **** //==============================================================================
+  35:Src/Slip.c    **** 
+  36:Src/Slip.c    **** //------------------------------------------------------------------------------
+  37:Src/Slip.c    **** // This function should be scheduled for each byte received over the UART
+  38:Src/Slip.c    **** //------------------------------------------------------------------------------
+  39:Src/Slip.c    **** static PT_THREAD(SlipReceiveProcess(uint8_t receivedByte))
+  40:Src/Slip.c    **** {
+  41:Src/Slip.c    ****     static uint32_t bytesReceived; // Number of bytes received in this frame
+  42:Src/Slip.c    ****     static uint8_t encodedByte;    // Unescaped byte to be stuffed into the buffer
+  43:Src/Slip.c    **** 
+  44:Src/Slip.c    ****     PT_BEGIN(&slipReceivePt);
+  45:Src/Slip.c    **** 
+  46:Src/Slip.c    ****     bytesReceived = 0;
+  47:Src/Slip.c    ****     while ((receivedByte != END) && (bytesReceived < receiveBufferSize))
+  48:Src/Slip.c    ****     {
+  49:Src/Slip.c    ****         // Save received byte in case it is a real value and not escaped
+  50:Src/Slip.c    ****         encodedByte = receivedByte;
+  51:Src/Slip.c    **** 
+  52:Src/Slip.c    ****         // If this is the ESC code, wait for the next byte and save appropriate value
+  53:Src/Slip.c    ****         if (receivedByte == ESC)
+  54:Src/Slip.c    ****         {
+  55:Src/Slip.c    ****             // Wait to receive another byte, we'll pick up here once one arrives
+  56:Src/Slip.c    ****             PT_YIELD(&slipReceivePt);
+  57:Src/Slip.c    **** 
+  58:Src/Slip.c    ****             if (receivedByte == ESC_END)
+  59:Src/Slip.c    ****             {
+  60:Src/Slip.c    ****                 encodedByte = END;
+  61:Src/Slip.c    ****             }
+  62:Src/Slip.c    ****             else if (receivedByte == ESC_ESC)
+  63:Src/Slip.c    ****             {
+  64:Src/Slip.c    ****                 encodedByte = ESC;
+  65:Src/Slip.c    ****             }
+  66:Src/Slip.c    ****             else if (receiveDoneCallback)
+  67:Src/Slip.c    ****             {
+  68:Src/Slip.c    ****                 // Protocol error, give a callback but say no bytes received
+  69:Src/Slip.c    ****                 receiveDoneCallback(0);
+  70:Src/Slip.c    ****             }
+  71:Src/Slip.c    ****         }
+  72:Src/Slip.c    **** 
+  73:Src/Slip.c    ****         // Save off whatever byte we just received
+  74:Src/Slip.c    ****         receiveBuffer[bytesReceived++] = encodedByte;
+  75:Src/Slip.c    **** 
+  76:Src/Slip.c    ****         // Go off and wait for another byte
+  77:Src/Slip.c    ****         PT_YIELD(&slipReceivePt);
+  78:Src/Slip.c    ****     }
+  79:Src/Slip.c    **** 
+  80:Src/Slip.c    ****     // We got the END byte, if we have received any data, give a callback
+  81:Src/Slip.c    ****     if (bytesReceived)
+  82:Src/Slip.c    ****     {
+  83:Src/Slip.c    ****         if (receiveDoneCallback)
+  84:Src/Slip.c    ****         {
+  85:Src/Slip.c    ****             receiveDoneCallback(bytesReceived);
+  86:Src/Slip.c    ****         }
+  87:Src/Slip.c    ****     }
+  88:Src/Slip.c    **** 
+  89:Src/Slip.c    ****     PT_END(&slipReceivePt);
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 3
+
+
+  90:Src/Slip.c    **** }
+  91:Src/Slip.c    **** 
+  92:Src/Slip.c    **** //------------------------------------------------------------------------------
+  93:Src/Slip.c    **** // This function should be scheduled for each byte to be transmitted over UART
+  94:Src/Slip.c    **** //------------------------------------------------------------------------------
+  95:Src/Slip.c    **** static PT_THREAD(SlipTransmitProcess())
+  96:Src/Slip.c    **** {
+  97:Src/Slip.c    ****     static uint32_t sentBytes;
+  98:Src/Slip.c    ****     static uint8_t dataToSend;
+  99:Src/Slip.c    **** 
+ 100:Src/Slip.c    ****     PT_BEGIN(&slipSendPt);
+ 101:Src/Slip.c    **** 
+ 102:Src/Slip.c    ****     sentBytes = 0;
+ 103:Src/Slip.c    ****     while (sentBytes < sendLength)
+ 104:Src/Slip.c    ****     {
+ 105:Src/Slip.c    ****         static uint8_t byteToSend;
+ 106:Src/Slip.c    ****         byteToSend = sendBuffer[sentBytes];
+ 107:Src/Slip.c    ****         if (byteToSend == END)
+ 108:Src/Slip.c    ****         {
+ 109:Src/Slip.c    ****             dataToSend = ESC;
+ 110:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 111:Src/Slip.c    ****             PT_YIELD(&slipSendPt);
+ 112:Src/Slip.c    ****             dataToSend = ESC_END;
+ 113:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 114:Src/Slip.c    ****         }
+ 115:Src/Slip.c    ****         else if (byteToSend == ESC)
+ 116:Src/Slip.c    ****         {
+ 117:Src/Slip.c    ****             dataToSend = ESC;
+ 118:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 119:Src/Slip.c    ****             PT_YIELD(&slipSendPt);
+ 120:Src/Slip.c    ****             dataToSend = ESC_ESC;
+ 121:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 122:Src/Slip.c    ****         }
+ 123:Src/Slip.c    ****         else
+ 124:Src/Slip.c    ****         {
+ 125:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &byteToSend, 1);
+ 126:Src/Slip.c    ****         }
+ 127:Src/Slip.c    ****         ++sentBytes;
+ 128:Src/Slip.c    ****         PT_YIELD(&slipSendPt);
+ 129:Src/Slip.c    ****     }
+ 130:Src/Slip.c    **** 
+ 131:Src/Slip.c    ****     dataToSend = END;
+ 132:Src/Slip.c    ****     HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 133:Src/Slip.c    ****     PT_END(&slipSendPt);
+ 134:Src/Slip.c    **** }
+ 135:Src/Slip.c    **** 
+ 136:Src/Slip.c    **** //==============================================================================
+ 137:Src/Slip.c    **** // Public function definitions
+ 138:Src/Slip.c    **** //==============================================================================
+ 139:Src/Slip.c    **** 
+ 140:Src/Slip.c    **** //------------------------------------------------------------------------------
+ 141:Src/Slip.c    **** // This function starts the transmission process
+ 142:Src/Slip.c    **** //------------------------------------------------------------------------------
+ 143:Src/Slip.c    **** bool Slip_Send(uint8_t *data, uint32_t dataLength, SlipDoneCallback_t callback)
+ 144:Src/Slip.c    **** {
+  27              		.loc 1 144 0
+  28              		.cfi_startproc
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 4
+
+
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  32 0000 38B5     		push	{r3, r4, r5, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 16
+  35              		.cfi_offset 3, -16
+  36              		.cfi_offset 4, -12
+  37              		.cfi_offset 5, -8
+  38              		.cfi_offset 14, -4
+  39              	.LBB6:
+  40              	.LBB7:
+  41              	.LBB8:
+ 100:Src/Slip.c    **** 
+  42              		.loc 1 100 0
+  43 0002 294C     		ldr	r4, .L21
+  44              	.LBE8:
+  45              	.LBE7:
+  46              	.LBE6:
+ 145:Src/Slip.c    ****     sendBuffer = data;
+  47              		.loc 1 145 0
+  48 0004 294D     		ldr	r5, .L21+4
+  49              	.LBB24:
+  50              	.LBB18:
+  51              	.LBB12:
+ 100:Src/Slip.c    **** 
+  52              		.loc 1 100 0
+  53 0006 2388     		ldrh	r3, [r4]
+  54              	.LBE12:
+  55              	.LBE18:
+  56              	.LBE24:
+ 146:Src/Slip.c    ****     sendLength = dataLength;
+  57              		.loc 1 146 0
+  58 0008 294A     		ldr	r2, .L21+8
+  59              	.LVL1:
+  60              	.LBB25:
+  61              	.LBB19:
+  62              	.LBB13:
+ 100:Src/Slip.c    **** 
+  63              		.loc 1 100 0
+  64 000a 6F2B     		cmp	r3, #111
+  65              	.LBE13:
+  66              	.LBE19:
+  67              	.LBE25:
+ 145:Src/Slip.c    ****     sendBuffer = data;
+  68              		.loc 1 145 0
+  69 000c 2860     		str	r0, [r5]
+  70              		.loc 1 146 0
+  71 000e 1160     		str	r1, [r2]
+  72              	.LVL2:
+  73              	.LBB26:
+  74              	.LBB20:
+  75              	.LBB14:
+ 100:Src/Slip.c    **** 
+  76              		.loc 1 100 0
+  77 0010 33D0     		beq	.L3
+  78 0012 22D9     		bls	.L17
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 5
+
+
+  79 0014 772B     		cmp	r3, #119
+  80 0016 11D0     		beq	.L6
+  81 0018 802B     		cmp	r3, #128
+  82 001a 2BD1     		bne	.L2
+  83 001c 254D     		ldr	r5, .L21+12
+  84 001e 2A68     		ldr	r2, [r5]
+  85              	.L9:
+ 103:Src/Slip.c    ****     {
+  86              		.loc 1 103 0
+  87 0020 9142     		cmp	r1, r2
+  88 0022 1FD9     		bls	.L18
+  89              	.LBB9:
+ 106:Src/Slip.c    ****         if (byteToSend == END)
+  90              		.loc 1 106 0
+  91 0024 835C     		ldrb	r3, [r0, r2]	@ zero_extendqisi2
+  92 0026 2449     		ldr	r1, .L21+16
+  93              	.LVL3:
+ 107:Src/Slip.c    ****         {
+  94              		.loc 1 107 0
+  95 0028 C02B     		cmp	r3, #192
+ 106:Src/Slip.c    ****         if (byteToSend == END)
+  96              		.loc 1 106 0
+  97 002a 0B70     		strb	r3, [r1]
+ 107:Src/Slip.c    ****         {
+  98              		.loc 1 107 0
+  99 002c 31D0     		beq	.L19
+ 115:Src/Slip.c    ****         {
+ 100              		.loc 1 115 0
+ 101 002e DB2B     		cmp	r3, #219
+ 102 0030 25D0     		beq	.L20
+ 125:Src/Slip.c    ****         }
+ 103              		.loc 1 125 0
+ 104 0032 0122     		movs	r2, #1
+ 105 0034 2148     		ldr	r0, .L21+20
+ 106              	.LVL4:
+ 107 0036 FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 108              	.LVL5:
+ 109 003a 08E0     		b	.L8
+ 110              	.LVL6:
+ 111              	.L6:
+ 120:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 112              		.loc 1 120 0
+ 113 003c DD25     		movs	r5, #221
+ 114              	.L15:
+ 115 003e 204B     		ldr	r3, .L21+24
+ 121:Src/Slip.c    ****         }
+ 116              		.loc 1 121 0
+ 117 0040 0122     		movs	r2, #1
+ 118 0042 1946     		mov	r1, r3
+ 119              	.LVL7:
+ 120 0044 1D48     		ldr	r0, .L21+20
+ 121              	.LVL8:
+ 120:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 122              		.loc 1 120 0
+ 123 0046 1D70     		strb	r5, [r3]
+ 124 0048 1A4D     		ldr	r5, .L21+12
+ 121:Src/Slip.c    ****         }
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 6
+
+
+ 125              		.loc 1 121 0
+ 126 004a FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 127              	.LVL9:
+ 128              	.L8:
+ 128:Src/Slip.c    ****     }
+ 129              		.loc 1 128 0
+ 130 004e 8022     		movs	r2, #128
+ 127:Src/Slip.c    ****         PT_YIELD(&slipSendPt);
+ 131              		.loc 1 127 0
+ 132 0050 2B68     		ldr	r3, [r5]
+ 128:Src/Slip.c    ****     }
+ 133              		.loc 1 128 0
+ 134 0052 2280     		strh	r2, [r4]	@ movhi
+ 127:Src/Slip.c    ****         PT_YIELD(&slipSendPt);
+ 135              		.loc 1 127 0
+ 136 0054 0133     		adds	r3, r3, #1
+ 137 0056 2B60     		str	r3, [r5]
+ 138              	.LVL10:
+ 139              	.LBE9:
+ 140              	.LBE14:
+ 141              	.LBE20:
+ 142              	.LBE26:
+ 147:Src/Slip.c    ****     sendDoneCallback = callback;
+ 148:Src/Slip.c    **** 
+ 149:Src/Slip.c    ****     (void)PT_SCHEDULE(SlipTransmitProcess());
+ 150:Src/Slip.c    **** }
+ 143              		.loc 1 150 0
+ 144 0058 38BD     		pop	{r3, r4, r5, pc}
+ 145              	.LVL11:
+ 146              	.L17:
+ 147              	.LBB27:
+ 148              	.LBB21:
+ 149              	.LBB15:
+ 100:Src/Slip.c    **** 
+ 150              		.loc 1 100 0
+ 151 005a 5BB9     		cbnz	r3, .L2
+ 102:Src/Slip.c    ****     while (sentBytes < sendLength)
+ 152              		.loc 1 102 0
+ 153 005c 154D     		ldr	r5, .L21+12
+ 154 005e 1A46     		mov	r2, r3
+ 155 0060 2B60     		str	r3, [r5]
+ 156 0062 DDE7     		b	.L9
+ 157              	.L18:
+ 131:Src/Slip.c    ****     HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 158              		.loc 1 131 0
+ 159 0064 C025     		movs	r5, #192
+ 160 0066 164B     		ldr	r3, .L21+24
+ 132:Src/Slip.c    ****     PT_END(&slipSendPt);
+ 161              		.loc 1 132 0
+ 162 0068 0122     		movs	r2, #1
+ 163 006a 1946     		mov	r1, r3
+ 164              	.LVL12:
+ 165 006c 1348     		ldr	r0, .L21+20
+ 166              	.LVL13:
+ 131:Src/Slip.c    ****     HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 167              		.loc 1 131 0
+ 168 006e 1D70     		strb	r5, [r3]
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 7
+
+
+ 132:Src/Slip.c    ****     PT_END(&slipSendPt);
+ 169              		.loc 1 132 0
+ 170 0070 FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 171              	.LVL14:
+ 172              	.L2:
+ 133:Src/Slip.c    **** }
+ 173              		.loc 1 133 0
+ 174 0074 0023     		movs	r3, #0
+ 175 0076 2380     		strh	r3, [r4]	@ movhi
+ 176              	.LBE15:
+ 177              	.LBE21:
+ 178              	.LBE27:
+ 179              		.loc 1 150 0
+ 180 0078 38BD     		pop	{r3, r4, r5, pc}
+ 181              	.LVL15:
+ 182              	.L3:
+ 183              	.LBB28:
+ 184              	.LBB22:
+ 185              	.LBB16:
+ 186              	.LBB10:
+ 112:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 187              		.loc 1 112 0
+ 188 007a DC25     		movs	r5, #220
+ 189 007c DFE7     		b	.L15
+ 190              	.LVL16:
+ 191              	.L20:
+ 117:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 192              		.loc 1 117 0
+ 193 007e 104D     		ldr	r5, .L21+24
+ 118:Src/Slip.c    ****             PT_YIELD(&slipSendPt);
+ 194              		.loc 1 118 0
+ 195 0080 0122     		movs	r2, #1
+ 196 0082 2946     		mov	r1, r5
+ 197 0084 0D48     		ldr	r0, .L21+20
+ 198              	.LVL17:
+ 117:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 199              		.loc 1 117 0
+ 200 0086 2B70     		strb	r3, [r5]
+ 118:Src/Slip.c    ****             PT_YIELD(&slipSendPt);
+ 201              		.loc 1 118 0
+ 202 0088 FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 203              	.LVL18:
+ 119:Src/Slip.c    ****             dataToSend = ESC_ESC;
+ 204              		.loc 1 119 0
+ 205 008c 7723     		movs	r3, #119
+ 206 008e 2380     		strh	r3, [r4]	@ movhi
+ 207              	.LBE10:
+ 208              	.LBE16:
+ 209              	.LBE22:
+ 210              	.LBE28:
+ 211              		.loc 1 150 0
+ 212 0090 38BD     		pop	{r3, r4, r5, pc}
+ 213              	.LVL19:
+ 214              	.L19:
+ 215              	.LBB29:
+ 216              	.LBB23:
+ 217              	.LBB17:
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 8
+
+
+ 218              	.LBB11:
+ 109:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 219              		.loc 1 109 0
+ 220 0092 DB25     		movs	r5, #219
+ 221 0094 0A4B     		ldr	r3, .L21+24
+ 110:Src/Slip.c    ****             PT_YIELD(&slipSendPt);
+ 222              		.loc 1 110 0
+ 223 0096 0122     		movs	r2, #1
+ 224 0098 1946     		mov	r1, r3
+ 225 009a 0848     		ldr	r0, .L21+20
+ 226              	.LVL20:
+ 109:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 227              		.loc 1 109 0
+ 228 009c 1D70     		strb	r5, [r3]
+ 110:Src/Slip.c    ****             PT_YIELD(&slipSendPt);
+ 229              		.loc 1 110 0
+ 230 009e FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 231              	.LVL21:
+ 111:Src/Slip.c    ****             dataToSend = ESC_END;
+ 232              		.loc 1 111 0
+ 233 00a2 6F23     		movs	r3, #111
+ 234 00a4 2380     		strh	r3, [r4]	@ movhi
+ 235              	.LBE11:
+ 236              	.LBE17:
+ 237              	.LBE23:
+ 238              	.LBE29:
+ 239              		.loc 1 150 0
+ 240 00a6 38BD     		pop	{r3, r4, r5, pc}
+ 241              	.L22:
+ 242              		.align	2
+ 243              	.L21:
+ 244 00a8 00000000 		.word	.LANCHOR2
+ 245 00ac 00000000 		.word	.LANCHOR0
+ 246 00b0 00000000 		.word	.LANCHOR1
+ 247 00b4 00000000 		.word	.LANCHOR4
+ 248 00b8 00000000 		.word	.LANCHOR5
+ 249 00bc 00000000 		.word	huart2
+ 250 00c0 00000000 		.word	.LANCHOR3
+ 251              		.cfi_endproc
+ 252              	.LFE68:
+ 254              		.section	.text.Slip_Receive,"ax",%progbits
+ 255              		.align	1
+ 256              		.p2align 2,,3
+ 257              		.global	Slip_Receive
+ 258              		.syntax unified
+ 259              		.thumb
+ 260              		.thumb_func
+ 261              		.fpu softvfp
+ 263              	Slip_Receive:
+ 264              	.LFB69:
+ 151:Src/Slip.c    **** 
+ 152:Src/Slip.c    **** //------------------------------------------------------------------------------
+ 153:Src/Slip.c    **** // This function starts the receive process
+ 154:Src/Slip.c    **** //------------------------------------------------------------------------------
+ 155:Src/Slip.c    **** bool Slip_Receive(uint8_t *dataBuffer, uint32_t bufferSize, SlipDoneCallback_t callback)
+ 156:Src/Slip.c    **** {
+ 265              		.loc 1 156 0
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 9
+
+
+ 266              		.cfi_startproc
+ 267              		@ args = 0, pretend = 0, frame = 0
+ 268              		@ frame_needed = 0, uses_anonymous_args = 0
+ 269              		@ link register save eliminated.
+ 270              	.LVL22:
+ 271 0000 30B4     		push	{r4, r5}
+ 272              	.LCFI1:
+ 273              		.cfi_def_cfa_offset 8
+ 274              		.cfi_offset 4, -8
+ 275              		.cfi_offset 5, -4
+ 157:Src/Slip.c    ****     // Save off our state
+ 158:Src/Slip.c    ****     receiveBuffer = dataBuffer;
+ 159:Src/Slip.c    ****     receiveBufferSize = bufferSize;
+ 160:Src/Slip.c    ****     receiveDoneCallback = callback;
+ 276              		.loc 1 160 0
+ 277 0002 064B     		ldr	r3, .L25
+ 158:Src/Slip.c    ****     receiveBufferSize = bufferSize;
+ 278              		.loc 1 158 0
+ 279 0004 064D     		ldr	r5, .L25+4
+ 159:Src/Slip.c    ****     receiveDoneCallback = callback;
+ 280              		.loc 1 159 0
+ 281 0006 074C     		ldr	r4, .L25+8
+ 158:Src/Slip.c    ****     receiveBufferSize = bufferSize;
+ 282              		.loc 1 158 0
+ 283 0008 2860     		str	r0, [r5]
+ 159:Src/Slip.c    ****     receiveDoneCallback = callback;
+ 284              		.loc 1 159 0
+ 285 000a 2160     		str	r1, [r4]
+ 286              		.loc 1 160 0
+ 287 000c 1A60     		str	r2, [r3]
+ 161:Src/Slip.c    **** 
+ 162:Src/Slip.c    ****     // Set up UART to receive a byte
+ 163:Src/Slip.c    ****     HAL_UART_Receive_IT(&huart2, &data, 1);
+ 288              		.loc 1 163 0
+ 289 000e 0649     		ldr	r1, .L25+12
+ 290              	.LVL23:
+ 291 0010 0122     		movs	r2, #1
+ 292              	.LVL24:
+ 164:Src/Slip.c    **** }
+ 293              		.loc 1 164 0
+ 294 0012 30BC     		pop	{r4, r5}
+ 295              	.LCFI2:
+ 296              		.cfi_restore 5
+ 297              		.cfi_restore 4
+ 298              		.cfi_def_cfa_offset 0
+ 163:Src/Slip.c    **** }
+ 299              		.loc 1 163 0
+ 300 0014 0548     		ldr	r0, .L25+16
+ 301              	.LVL25:
+ 302 0016 FFF7FEBF 		b	HAL_UART_Receive_IT
+ 303              	.LVL26:
+ 304              	.L26:
+ 305 001a 00BF     		.align	2
+ 306              	.L25:
+ 307 001c 00000000 		.word	.LANCHOR8
+ 308 0020 00000000 		.word	.LANCHOR6
+ 309 0024 00000000 		.word	.LANCHOR7
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 10
+
+
+ 310 0028 00000000 		.word	.LANCHOR9
+ 311 002c 00000000 		.word	huart2
+ 312              		.cfi_endproc
+ 313              	.LFE69:
+ 315              		.section	.text.Slip_ReceiveByte,"ax",%progbits
+ 316              		.align	1
+ 317              		.p2align 2,,3
+ 318              		.global	Slip_ReceiveByte
+ 319              		.syntax unified
+ 320              		.thumb
+ 321              		.thumb_func
+ 322              		.fpu softvfp
+ 324              	Slip_ReceiveByte:
+ 325              	.LFB70:
+ 165:Src/Slip.c    **** 
+ 166:Src/Slip.c    **** //------------------------------------------------------------------------------
+ 167:Src/Slip.c    **** // This function should be called for each byte received over the UART
+ 168:Src/Slip.c    **** //------------------------------------------------------------------------------
+ 169:Src/Slip.c    **** void Slip_ReceiveByte(void)
+ 170:Src/Slip.c    **** {
+ 326              		.loc 1 170 0
+ 327              		.cfi_startproc
+ 328              		@ args = 0, pretend = 0, frame = 0
+ 329              		@ frame_needed = 0, uses_anonymous_args = 0
+ 330 0000 38B5     		push	{r3, r4, r5, lr}
+ 331              	.LCFI3:
+ 332              		.cfi_def_cfa_offset 16
+ 333              		.cfi_offset 3, -16
+ 334              		.cfi_offset 4, -12
+ 335              		.cfi_offset 5, -8
+ 336              		.cfi_offset 14, -4
+ 337              	.LBB33:
+ 338              	.LBB34:
+ 339              	.LBB35:
+  44:Src/Slip.c    **** 
+ 340              		.loc 1 44 0
+ 341 0002 294C     		ldr	r4, .L61
+ 342              	.LBE35:
+ 343              	.LBE34:
+ 344              	.LBE33:
+ 171:Src/Slip.c    ****     (void)PT_SCHEDULE(SlipReceiveProcess(data));
+ 345              		.loc 1 171 0
+ 346 0004 294B     		ldr	r3, .L61+4
+ 347              	.LBB42:
+ 348              	.LBB39:
+ 349              	.LBB36:
+  44:Src/Slip.c    **** 
+ 350              		.loc 1 44 0
+ 351 0006 2088     		ldrh	r0, [r4]
+ 352              	.LBE36:
+ 353              	.LBE39:
+ 354              	.LBE42:
+ 355              		.loc 1 171 0
+ 356 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 357              	.LVL27:
+ 358              	.LBB43:
+ 359              	.LBB40:
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 11
+
+
+ 360              	.LBB37:
+  44:Src/Slip.c    **** 
+ 361              		.loc 1 44 0
+ 362 000a 3828     		cmp	r0, #56
+ 363 000c 2FD0     		beq	.L29
+ 364 000e 4D28     		cmp	r0, #77
+ 365 0010 1DD0     		beq	.L30
+ 366 0012 40B1     		cbz	r0, .L57
+ 367              	.LVL28:
+ 368              	.L28:
+  89:Src/Slip.c    **** }
+ 369              		.loc 1 89 0
+ 370 0014 0023     		movs	r3, #0
+ 371 0016 2380     		strh	r3, [r4]	@ movhi
+ 372              	.L37:
+ 373              	.LBE37:
+ 374              	.LBE40:
+ 375              	.LBE43:
+ 172:Src/Slip.c    ****     HAL_UART_Receive_IT(&huart2, &data, 1);
+ 376              		.loc 1 172 0
+ 377 0018 0122     		movs	r2, #1
+ 173:Src/Slip.c    **** }
+ 378              		.loc 1 173 0
+ 379 001a BDE83840 		pop	{r3, r4, r5, lr}
+ 380              	.LCFI4:
+ 381              		.cfi_remember_state
+ 382              		.cfi_restore 14
+ 383              		.cfi_restore 5
+ 384              		.cfi_restore 4
+ 385              		.cfi_restore 3
+ 386              		.cfi_def_cfa_offset 0
+ 172:Src/Slip.c    ****     HAL_UART_Receive_IT(&huart2, &data, 1);
+ 387              		.loc 1 172 0
+ 388 001e 2349     		ldr	r1, .L61+4
+ 389 0020 2348     		ldr	r0, .L61+8
+ 390 0022 FFF7FEBF 		b	HAL_UART_Receive_IT
+ 391              	.LVL29:
+ 392              	.L57:
+ 393              	.LCFI5:
+ 394              		.cfi_restore_state
+ 395              	.LBB44:
+ 396              	.LBB41:
+ 397              	.LBB38:
+  46:Src/Slip.c    ****     while ((receivedByte != END) && (bytesReceived < receiveBufferSize))
+ 398              		.loc 1 46 0
+ 399 0026 234A     		ldr	r2, .L61+12
+  47:Src/Slip.c    ****     {
+ 400              		.loc 1 47 0
+ 401 0028 C02B     		cmp	r3, #192
+  46:Src/Slip.c    ****     while ((receivedByte != END) && (bytesReceived < receiveBufferSize))
+ 402              		.loc 1 46 0
+ 403 002a 1060     		str	r0, [r2]
+  47:Src/Slip.c    ****     {
+ 404              		.loc 1 47 0
+ 405 002c F2D0     		beq	.L28
+ 406 002e 2249     		ldr	r1, .L61+16
+ 407 0030 0968     		ldr	r1, [r1]
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 12
+
+
+ 408 0032 0029     		cmp	r1, #0
+ 409 0034 EED0     		beq	.L28
+ 410              	.L35:
+  50:Src/Slip.c    **** 
+ 411              		.loc 1 50 0
+ 412 0036 2149     		ldr	r1, .L61+20
+  53:Src/Slip.c    ****         {
+ 413              		.loc 1 53 0
+ 414 0038 DB2B     		cmp	r3, #219
+  50:Src/Slip.c    **** 
+ 415              		.loc 1 50 0
+ 416 003a 0B70     		strb	r3, [r1]
+  53:Src/Slip.c    ****         {
+ 417              		.loc 1 53 0
+ 418 003c 25D0     		beq	.L58
+ 419              	.LVL30:
+ 420              	.L36:
+  77:Src/Slip.c    ****     }
+ 421              		.loc 1 77 0
+ 422 003e 4D25     		movs	r5, #77
+  74:Src/Slip.c    **** 
+ 423              		.loc 1 74 0
+ 424 0040 1F49     		ldr	r1, .L61+24
+  77:Src/Slip.c    ****     }
+ 425              		.loc 1 77 0
+ 426 0042 2580     		strh	r5, [r4]	@ movhi
+  74:Src/Slip.c    **** 
+ 427              		.loc 1 74 0
+ 428 0044 0C68     		ldr	r4, [r1]
+ 429 0046 411C     		adds	r1, r0, #1
+ 430 0048 2354     		strb	r3, [r4, r0]
+ 431              	.LVL31:
+ 432 004a 1160     		str	r1, [r2]
+ 433 004c E4E7     		b	.L37
+ 434              	.LVL32:
+ 435              	.L30:
+ 436 004e 194A     		ldr	r2, .L61+12
+  47:Src/Slip.c    ****     {
+ 437              		.loc 1 47 0
+ 438 0050 C02B     		cmp	r3, #192
+ 439 0052 1068     		ldr	r0, [r2]
+ 440 0054 03D0     		beq	.L40
+ 441 0056 1849     		ldr	r1, .L61+16
+ 442 0058 0968     		ldr	r1, [r1]
+ 443 005a 8142     		cmp	r1, r0
+ 444 005c EBD8     		bhi	.L35
+ 445              	.L40:
+  81:Src/Slip.c    ****     {
+ 446              		.loc 1 81 0
+ 447 005e 0028     		cmp	r0, #0
+ 448 0060 D8D0     		beq	.L28
+  83:Src/Slip.c    ****         {
+ 449              		.loc 1 83 0
+ 450 0062 184B     		ldr	r3, .L61+28
+ 451              	.LVL33:
+ 452 0064 1B68     		ldr	r3, [r3]
+ 453 0066 002B     		cmp	r3, #0
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 13
+
+
+ 454 0068 D4D0     		beq	.L28
+  85:Src/Slip.c    ****         }
+ 455              		.loc 1 85 0
+ 456 006a 9847     		blx	r3
+ 457              	.LVL34:
+ 458 006c D2E7     		b	.L28
+ 459              	.LVL35:
+ 460              	.L29:
+  58:Src/Slip.c    ****             {
+ 461              		.loc 1 58 0
+ 462 006e DC2B     		cmp	r3, #220
+ 463 0070 0ED0     		beq	.L59
+  62:Src/Slip.c    ****             {
+ 464              		.loc 1 62 0
+ 465 0072 DD2B     		cmp	r3, #221
+ 466 0074 12D0     		beq	.L60
+  66:Src/Slip.c    ****             {
+ 467              		.loc 1 66 0
+ 468 0076 134B     		ldr	r3, .L61+28
+ 469              	.LVL36:
+ 470 0078 1B68     		ldr	r3, [r3]
+ 471 007a 0BB1     		cbz	r3, .L56
+  69:Src/Slip.c    ****             }
+ 472              		.loc 1 69 0
+ 473 007c 0020     		movs	r0, #0
+ 474 007e 9847     		blx	r3
+ 475              	.LVL37:
+ 476              	.L56:
+ 477 0080 0C4A     		ldr	r2, .L61+12
+ 478 0082 0E4B     		ldr	r3, .L61+20
+ 479 0084 1068     		ldr	r0, [r2]
+ 480 0086 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 481 0088 D9E7     		b	.L36
+ 482              	.LVL38:
+ 483              	.L58:
+  56:Src/Slip.c    **** 
+ 484              		.loc 1 56 0
+ 485 008a 3823     		movs	r3, #56
+ 486              	.LVL39:
+ 487 008c 2380     		strh	r3, [r4]	@ movhi
+ 488 008e C3E7     		b	.L37
+ 489              	.LVL40:
+ 490              	.L59:
+  60:Src/Slip.c    ****             }
+ 491              		.loc 1 60 0
+ 492 0090 C023     		movs	r3, #192
+ 493              	.LVL41:
+ 494 0092 0A49     		ldr	r1, .L61+20
+ 495 0094 074A     		ldr	r2, .L61+12
+ 496 0096 0B70     		strb	r3, [r1]
+ 497 0098 1068     		ldr	r0, [r2]
+ 498 009a D0E7     		b	.L36
+ 499              	.LVL42:
+ 500              	.L60:
+  64:Src/Slip.c    ****             }
+ 501              		.loc 1 64 0
+ 502 009c DB23     		movs	r3, #219
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 14
+
+
+ 503              	.LVL43:
+ 504 009e 0749     		ldr	r1, .L61+20
+ 505 00a0 044A     		ldr	r2, .L61+12
+ 506 00a2 0B70     		strb	r3, [r1]
+ 507 00a4 1068     		ldr	r0, [r2]
+ 508 00a6 CAE7     		b	.L36
+ 509              	.L62:
+ 510              		.align	2
+ 511              	.L61:
+ 512 00a8 00000000 		.word	.LANCHOR10
+ 513 00ac 00000000 		.word	.LANCHOR9
+ 514 00b0 00000000 		.word	huart2
+ 515 00b4 00000000 		.word	.LANCHOR11
+ 516 00b8 00000000 		.word	.LANCHOR7
+ 517 00bc 00000000 		.word	.LANCHOR12
+ 518 00c0 00000000 		.word	.LANCHOR6
+ 519 00c4 00000000 		.word	.LANCHOR8
+ 520              	.LBE38:
+ 521              	.LBE41:
+ 522              	.LBE44:
+ 523              		.cfi_endproc
+ 524              	.LFE70:
+ 526              		.section	.text.HAL_UART_TxCpltCallback,"ax",%progbits
+ 527              		.align	1
+ 528              		.p2align 2,,3
+ 529              		.global	HAL_UART_TxCpltCallback
+ 530              		.syntax unified
+ 531              		.thumb
+ 532              		.thumb_func
+ 533              		.fpu softvfp
+ 535              	HAL_UART_TxCpltCallback:
+ 536              	.LFB71:
+ 174:Src/Slip.c    **** 
+ 175:Src/Slip.c    **** //------------------------------------------------------------------------------
+ 176:Src/Slip.c    **** // Called by HAL when UART transmit is complete. It will schedule to process to
+ 177:Src/Slip.c    **** // send the next byte.
+ 178:Src/Slip.c    **** //------------------------------------------------------------------------------
+ 179:Src/Slip.c    **** void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+ 180:Src/Slip.c    **** {
+ 537              		.loc 1 180 0
+ 538              		.cfi_startproc
+ 539              		@ args = 0, pretend = 0, frame = 0
+ 540              		@ frame_needed = 0, uses_anonymous_args = 0
+ 541              	.LVL44:
+ 542 0000 38B5     		push	{r3, r4, r5, lr}
+ 543              	.LCFI6:
+ 544              		.cfi_def_cfa_offset 16
+ 545              		.cfi_offset 3, -16
+ 546              		.cfi_offset 4, -12
+ 547              		.cfi_offset 5, -8
+ 548              		.cfi_offset 14, -4
+ 549              	.LBB49:
+ 550              	.LBB50:
+ 551              	.LBB51:
+ 100:Src/Slip.c    **** 
+ 552              		.loc 1 100 0
+ 553 0002 294C     		ldr	r4, .L82
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 15
+
+
+ 554 0004 2388     		ldrh	r3, [r4]
+ 555 0006 6F2B     		cmp	r3, #111
+ 556 0008 37D0     		beq	.L65
+ 557 000a 26D9     		bls	.L78
+ 558 000c 772B     		cmp	r3, #119
+ 559 000e 15D0     		beq	.L68
+ 560 0010 802B     		cmp	r3, #128
+ 561 0012 2FD1     		bne	.L64
+ 562 0014 254D     		ldr	r5, .L82+4
+ 563 0016 2A68     		ldr	r2, [r5]
+ 564              	.L71:
+ 103:Src/Slip.c    ****     {
+ 565              		.loc 1 103 0
+ 566 0018 254B     		ldr	r3, .L82+8
+ 567 001a 1B68     		ldr	r3, [r3]
+ 568 001c 9342     		cmp	r3, r2
+ 569 001e 21D9     		bls	.L79
+ 570              	.LBB52:
+ 106:Src/Slip.c    ****         if (byteToSend == END)
+ 571              		.loc 1 106 0
+ 572 0020 244B     		ldr	r3, .L82+12
+ 573 0022 2549     		ldr	r1, .L82+16
+ 574 0024 1B68     		ldr	r3, [r3]
+ 575 0026 9B5C     		ldrb	r3, [r3, r2]	@ zero_extendqisi2
+ 107:Src/Slip.c    ****         {
+ 576              		.loc 1 107 0
+ 577 0028 C02B     		cmp	r3, #192
+ 106:Src/Slip.c    ****         if (byteToSend == END)
+ 578              		.loc 1 106 0
+ 579 002a 0B70     		strb	r3, [r1]
+ 107:Src/Slip.c    ****         {
+ 580              		.loc 1 107 0
+ 581 002c 31D0     		beq	.L80
+ 115:Src/Slip.c    ****         {
+ 582              		.loc 1 115 0
+ 583 002e DB2B     		cmp	r3, #219
+ 584 0030 25D0     		beq	.L81
+ 125:Src/Slip.c    ****         }
+ 585              		.loc 1 125 0
+ 586 0032 0122     		movs	r2, #1
+ 587 0034 2148     		ldr	r0, .L82+20
+ 588              	.LVL45:
+ 589 0036 FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 590              	.LVL46:
+ 591 003a 08E0     		b	.L70
+ 592              	.LVL47:
+ 593              	.L68:
+ 120:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 594              		.loc 1 120 0
+ 595 003c DD25     		movs	r5, #221
+ 596              	.L77:
+ 597 003e 204B     		ldr	r3, .L82+24
+ 121:Src/Slip.c    ****         }
+ 598              		.loc 1 121 0
+ 599 0040 0122     		movs	r2, #1
+ 600 0042 1946     		mov	r1, r3
+ 601 0044 1D48     		ldr	r0, .L82+20
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 16
+
+
+ 602              	.LVL48:
+ 120:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 603              		.loc 1 120 0
+ 604 0046 1D70     		strb	r5, [r3]
+ 605 0048 184D     		ldr	r5, .L82+4
+ 121:Src/Slip.c    ****         }
+ 606              		.loc 1 121 0
+ 607 004a FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 608              	.LVL49:
+ 609              	.L70:
+ 128:Src/Slip.c    ****     }
+ 610              		.loc 1 128 0
+ 611 004e 8022     		movs	r2, #128
+ 127:Src/Slip.c    ****         PT_YIELD(&slipSendPt);
+ 612              		.loc 1 127 0
+ 613 0050 2B68     		ldr	r3, [r5]
+ 128:Src/Slip.c    ****     }
+ 614              		.loc 1 128 0
+ 615 0052 2280     		strh	r2, [r4]	@ movhi
+ 127:Src/Slip.c    ****         PT_YIELD(&slipSendPt);
+ 616              		.loc 1 127 0
+ 617 0054 0133     		adds	r3, r3, #1
+ 618 0056 2B60     		str	r3, [r5]
+ 619              	.LVL50:
+ 620              	.LBE52:
+ 621              	.LBE51:
+ 622              	.LBE50:
+ 623              	.LBE49:
+ 181:Src/Slip.c    ****     (void)PT_SCHEDULE(SlipTransmitProcess());
+ 182:Src/Slip.c    **** }...
+ 624              		.loc 1 182 0
+ 625 0058 38BD     		pop	{r3, r4, r5, pc}
+ 626              	.LVL51:
+ 627              	.L78:
+ 628              	.LBB61:
+ 629              	.LBB58:
+ 630              	.LBB55:
+ 100:Src/Slip.c    ****     PT_BEGIN(&slipSendPt);
+ 631              		.loc 1 100 0
+ 632 005a 5BB9     		cbnz	r3, .L64
+ 102:Src/Slip.c    ****     sentBytes = 0;
+ 633              		.loc 1 102 0
+ 634 005c 134D     		ldr	r5, .L82+4
+ 635 005e 1A46     		mov	r2, r3
+ 636 0060 2B60     		str	r3, [r5]
+ 637 0062 D9E7     		b	.L71
+ 638              	.L79:
+ 131:Src/Slip.c    ****     dataToSend = END;
+ 639              		.loc 1 131 0
+ 640 0064 C025     		movs	r5, #192
+ 641 0066 164B     		ldr	r3, .L82+24
+ 132:Src/Slip.c    ****     HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 642              		.loc 1 132 0
+ 643 0068 0122     		movs	r2, #1
+ 644 006a 1946     		mov	r1, r3
+ 645 006c 1348     		ldr	r0, .L82+20
+ 646              	.LVL52:
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 17
+
+
+ 131:Src/Slip.c    ****     dataToSend = END;
+ 647              		.loc 1 131 0
+ 648 006e 1D70     		strb	r5, [r3]
+ 132:Src/Slip.c    ****     HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 649              		.loc 1 132 0
+ 650 0070 FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 651              	.LVL53:
+ 652              	.L64:
+ 133:Src/Slip.c    ****     PT_END(&slipSendPt);
+ 653              		.loc 1 133 0
+ 654 0074 0023     		movs	r3, #0
+ 655 0076 2380     		strh	r3, [r4]	@ movhi
+ 656              	.LBE55:
+ 657              	.LBE58:
+ 658              	.LBE61:
+ 659              		.loc 1 182 0
+ 660 0078 38BD     		pop	{r3, r4, r5, pc}
+ 661              	.LVL54:
+ 662              	.L65:
+ 663              	.LBB62:
+ 664              	.LBB59:
+ 665              	.LBB56:
+ 666              	.LBB53:
+ 112:Src/Slip.c    ****             dataToSend = ESC_END;
+ 667              		.loc 1 112 0
+ 668 007a DC25     		movs	r5, #220
+ 669 007c DFE7     		b	.L77
+ 670              	.L81:
+ 117:Src/Slip.c    ****             dataToSend = ESC;
+ 671              		.loc 1 117 0
+ 672 007e 104D     		ldr	r5, .L82+24
+ 118:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 673              		.loc 1 118 0
+ 674 0080 0122     		movs	r2, #1
+ 675 0082 2946     		mov	r1, r5
+ 676 0084 0D48     		ldr	r0, .L82+20
+ 677              	.LVL55:
+ 117:Src/Slip.c    ****             dataToSend = ESC;
+ 678              		.loc 1 117 0
+ 679 0086 2B70     		strb	r3, [r5]
+ 118:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 680              		.loc 1 118 0
+ 681 0088 FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 682              	.LVL56:
+ 119:Src/Slip.c    ****             PT_YIELD(&slipSendPt);
+ 683              		.loc 1 119 0
+ 684 008c 7723     		movs	r3, #119
+ 685 008e 2380     		strh	r3, [r4]	@ movhi
+ 686              	.LBE53:
+ 687              	.LBE56:
+ 688              	.LBE59:
+ 689              	.LBE62:
+ 690              		.loc 1 182 0
+ 691 0090 38BD     		pop	{r3, r4, r5, pc}
+ 692              	.LVL57:
+ 693              	.L80:
+ 694              	.LBB63:
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 18
+
+
+ 695              	.LBB60:
+ 696              	.LBB57:
+ 697              	.LBB54:
+ 109:Src/Slip.c    ****             dataToSend = ESC;
+ 698              		.loc 1 109 0
+ 699 0092 DB25     		movs	r5, #219
+ 700 0094 0A4B     		ldr	r3, .L82+24
+ 110:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 701              		.loc 1 110 0
+ 702 0096 0122     		movs	r2, #1
+ 703 0098 1946     		mov	r1, r3
+ 704 009a 0848     		ldr	r0, .L82+20
+ 705              	.LVL58:
+ 109:Src/Slip.c    ****             dataToSend = ESC;
+ 706              		.loc 1 109 0
+ 707 009c 1D70     		strb	r5, [r3]
+ 110:Src/Slip.c    ****             HAL_UART_Transmit_IT(&huart2, &dataToSend, 1);
+ 708              		.loc 1 110 0
+ 709 009e FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 710              	.LVL59:
+ 111:Src/Slip.c    ****             PT_YIELD(&slipSendPt);
+ 711              		.loc 1 111 0
+ 712 00a2 6F23     		movs	r3, #111
+ 713 00a4 2380     		strh	r3, [r4]	@ movhi
+ 714              	.LBE54:
+ 715              	.LBE57:
+ 716              	.LBE60:
+ 717              	.LBE63:
+ 718              		.loc 1 182 0
+ 719 00a6 38BD     		pop	{r3, r4, r5, pc}
+ 720              	.L83:
+ 721              		.align	2
+ 722              	.L82:
+ 723 00a8 00000000 		.word	.LANCHOR2
+ 724 00ac 00000000 		.word	.LANCHOR4
+ 725 00b0 00000000 		.word	.LANCHOR1
+ 726 00b4 00000000 		.word	.LANCHOR0
+ 727 00b8 00000000 		.word	.LANCHOR5
+ 728 00bc 00000000 		.word	huart2
+ 729 00c0 00000000 		.word	.LANCHOR3
+ 730              		.cfi_endproc
+ 731              	.LFE71:
+ 733              		.section	.bss.byteToSend.7012,"aw",%nobits
+ 734              		.set	.LANCHOR5,. + 0
+ 737              	byteToSend.7012:
+ 738 0000 00       		.space	1
+ 739              		.section	.bss.bytesReceived.6997,"aw",%nobits
+ 740              		.align	2
+ 741              		.set	.LANCHOR11,. + 0
+ 744              	bytesReceived.6997:
+ 745 0000 00000000 		.space	4
+ 746              		.section	.bss.data,"aw",%nobits
+ 747              		.set	.LANCHOR9,. + 0
+ 750              	data:
+ 751 0000 00       		.space	1
+ 752              		.section	.bss.dataToSend.7009,"aw",%nobits
+ 753              		.set	.LANCHOR3,. + 0
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 19
+
+
+ 756              	dataToSend.7009:
+ 757 0000 00       		.space	1
+ 758              		.section	.bss.encodedByte.6998,"aw",%nobits
+ 759              		.set	.LANCHOR12,. + 0
+ 762              	encodedByte.6998:
+ 763 0000 00       		.space	1
+ 764              		.section	.bss.receiveBuffer,"aw",%nobits
+ 765              		.align	2
+ 766              		.set	.LANCHOR6,. + 0
+ 769              	receiveBuffer:
+ 770 0000 00000000 		.space	4
+ 771              		.section	.bss.receiveBufferSize,"aw",%nobits
+ 772              		.align	2
+ 773              		.set	.LANCHOR7,. + 0
+ 776              	receiveBufferSize:
+ 777 0000 00000000 		.space	4
+ 778              		.section	.bss.receiveDoneCallback,"aw",%nobits
+ 779              		.align	2
+ 780              		.set	.LANCHOR8,. + 0
+ 783              	receiveDoneCallback:
+ 784 0000 00000000 		.space	4
+ 785              		.section	.bss.sendBuffer,"aw",%nobits
+ 786              		.align	2
+ 787              		.set	.LANCHOR0,. + 0
+ 790              	sendBuffer:
+ 791 0000 00000000 		.space	4
+ 792              		.section	.bss.sendLength,"aw",%nobits
+ 793              		.align	2
+ 794              		.set	.LANCHOR1,. + 0
+ 797              	sendLength:
+ 798 0000 00000000 		.space	4
+ 799              		.section	.bss.sentBytes.7008,"aw",%nobits
+ 800              		.align	2
+ 801              		.set	.LANCHOR4,. + 0
+ 804              	sentBytes.7008:
+ 805 0000 00000000 		.space	4
+ 806              		.section	.bss.slipReceivePt,"aw",%nobits
+ 807              		.align	2
+ 808              		.set	.LANCHOR10,. + 0
+ 811              	slipReceivePt:
+ 812 0000 0000     		.space	2
+ 813              		.section	.bss.slipSendPt,"aw",%nobits
+ 814              		.align	2
+ 815              		.set	.LANCHOR2,. + 0
+ 818              	slipSendPt:
+ 819 0000 0000     		.space	2
+ 820              		.text
+ 821              	.Letext0:
+ 822              		.file 2 "c:\\arm-none-eabi\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 823              		.file 3 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 824              		.file 4 "Drivers/CMSIS/Include/core_cm3.h"
+ 825              		.file 5 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h"
+ 826              		.file 6 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 827              		.file 7 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\lock.h"
+ 828              		.file 8 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\_types.h"
+ 829              		.file 9 "c:\\arm-none-eabi\\lib\\gcc\\arm-none-eabi\\7.2.1\\include\\stddef.h"
+ 830              		.file 10 "c:\\arm-none-eabi\\arm-none-eabi\\include\\sys\\reent.h"
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 20
+
+
+ 831              		.file 11 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 832              		.file 12 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 833              		.file 13 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h"
+ 834              		.file 14 "Inc/lc-switch.h"
+ 835              		.file 15 "Inc/pt.h"
+ 836              		.file 16 "Inc/Slip.h"
+ARM GAS  C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 Slip.c
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:16     .text.Slip_Send:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:24     .text.Slip_Send:00000000 Slip_Send
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:244    .text.Slip_Send:000000a8 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:255    .text.Slip_Receive:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:263    .text.Slip_Receive:00000000 Slip_Receive
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:307    .text.Slip_Receive:0000001c $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:316    .text.Slip_ReceiveByte:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:324    .text.Slip_ReceiveByte:00000000 Slip_ReceiveByte
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:512    .text.Slip_ReceiveByte:000000a8 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:527    .text.HAL_UART_TxCpltCallback:00000000 $t
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:535    .text.HAL_UART_TxCpltCallback:00000000 HAL_UART_TxCpltCallback
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:723    .text.HAL_UART_TxCpltCallback:000000a8 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:737    .bss.byteToSend.7012:00000000 byteToSend.7012
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:738    .bss.byteToSend.7012:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:740    .bss.bytesReceived.6997:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:744    .bss.bytesReceived.6997:00000000 bytesReceived.6997
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:750    .bss.data:00000000 data
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:751    .bss.data:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:756    .bss.dataToSend.7009:00000000 dataToSend.7009
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:757    .bss.dataToSend.7009:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:762    .bss.encodedByte.6998:00000000 encodedByte.6998
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:763    .bss.encodedByte.6998:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:765    .bss.receiveBuffer:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:769    .bss.receiveBuffer:00000000 receiveBuffer
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:772    .bss.receiveBufferSize:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:776    .bss.receiveBufferSize:00000000 receiveBufferSize
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:779    .bss.receiveDoneCallback:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:783    .bss.receiveDoneCallback:00000000 receiveDoneCallback
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:786    .bss.sendBuffer:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:790    .bss.sendBuffer:00000000 sendBuffer
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:793    .bss.sendLength:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:797    .bss.sendLength:00000000 sendLength
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:800    .bss.sentBytes.7008:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:804    .bss.sentBytes.7008:00000000 sentBytes.7008
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:807    .bss.slipReceivePt:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:811    .bss.slipReceivePt:00000000 slipReceivePt
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:814    .bss.slipSendPt:00000000 $d
+C:\Users\Jason\AppData\Local\Temp\ccQZjHHK.s:818    .bss.slipSendPt:00000000 slipSendPt
+
+UNDEFINED SYMBOLS
+HAL_UART_Transmit_IT
+huart2
+HAL_UART_Receive_IT
